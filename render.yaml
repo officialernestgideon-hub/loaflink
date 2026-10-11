@@ -2,8 +2,12 @@ services:
   - type: web
     name: loaflink
     runtime: python
+    plan: free
+    region: frankfurt
+    branch: main
     buildCommand: "./build.sh"
-    startCommand: "gunicorn bs.wsgi:application"
+    startCommand: "gunicorn bs.wsgi:application --bind 0.0.0.0:$PORT"
+    autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.0
@@ -11,5 +15,7 @@ services:
         generateValue: true
       - key: DEBUG
         value: "False"
+      - key: ALLOWED_HOSTS
+        value: "loaflink.onrender.com"
       - key: DATABASE_URL
-        sync: false   # You'll set this manually in the Render dashboard
+        sync: false       # ← will be set manually in Render dashboard
