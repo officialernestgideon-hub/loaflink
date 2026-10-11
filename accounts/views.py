@@ -30,15 +30,10 @@ def register_view(request):
 
         # Auto-create the Bakery or Retailer profile shell
         if user.role == 'bakery':
-            from orders.models import Bakery
-            Bakery.objects.get_or_create(
-                user=user,
-                defaults={
-                    'name': user.full_name or 'My Bakery',
-                    'phone': user.phone,
-                    'address': 'Not set',
-                }
-            )
+            # Do NOT auto-create the Bakery — the owner will fill in business
+            # details on the setup page right after verification.
+            # Retailers get their setup page in the shop app.
+            pass
         elif user.role == 'retailer':
             # Retailer has no bakery yet — we'll prompt for that later
             # For MVP, they'll be assigned to a bakery by the admin after signup.

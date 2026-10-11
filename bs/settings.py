@@ -166,6 +166,10 @@ SMS_PROVIDER = 'console'
 TERMII_API_KEY = ''
 TERMII_SENDER_ID = 'LoafLink'
 
+# Session: keep users logged in for 30 days
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
+SESSION_SAVE_EVERY_REQUEST = True
+
 # Scheduled notification times (24h, in TIME_ZONE)
 CUTOFF_REMINDER_HOUR = 19     # 7:00 PM
 CUTOFF_PASSED_HOUR   = 20     # 8:00 PM (5-min buffer on the bakery side)
