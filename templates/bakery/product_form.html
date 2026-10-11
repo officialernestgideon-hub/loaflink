@@ -1,0 +1,69 @@
+{% extends 'bakery/base_bakery.html' %}
+{% block title %}{% if is_edit %}Edit product{% else %}Add product{% endif %} — LoafLink Bakery{% endblock %}
+{% block page_title %}{% if is_edit %}Edit "{{ product.name }}"{% else %}Add a new product{% endif %}{% endblock %}
+{% block page_sub %}Fill in the details below{% endblock %}
+
+{% block content %}
+
+<div style="max-width: 560px;">
+
+  {% if form.non_field_errors %}
+    <div class="bk-error">{{ form.non_field_errors.0 }}</div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="bk-card">
+
+      <div class="bk-form-group">
+        <label class="bk-label" for="{{ form.name.id_for_label }}">Product name</label>
+        {{ form.name }}
+        {% if form.name.errors %}<div class="bk-error">{{ form.name.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="bk-form-group">
+        <label class="bk-label" for="{{ form.description.id_for_label }}">Description <span class="bk-muted">(optional)</span></label>
+        {{ form.description }}
+        {% if form.description.errors %}<div class="bk-error">{{ form.description.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="bk-grid-2">
+        <div class="bk-form-group">
+          <label class="bk-label" for="{{ form.price.id_for_label }}">Price (₦)</label>
+          {{ form.price }}
+          {% if form.price.errors %}<div class="bk-error">{{ form.price.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="bk-form-group">
+          <label class="bk-label" for="{{ form.unit.id_for_label }}">Sold by</label>
+          {{ form.unit }}
+          {% if form.unit.errors %}<div class="bk-error">{{ form.unit.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="bk-form-group">
+        <label style="display:flex; align-items:center; font-weight:600; font-family:'Plus Jakarta Sans', sans-serif; font-size:0.9rem; cursor:pointer;">
+          {{ form.is_available }}
+          <span>Available for ordering</span>
+        </label>
+        <div class="bk-help">Retailers can only order products marked as available.</div>
+      </div>
+
+    </div>
+
+    <div class="bk-flex-between bk-mt-2">
+      <a href="{% url 'bakery:products_list' %}" class="bk-btn bk-btn-outline">
+        Cancel
+      </a>
+      <button type="submit" class="bk-btn bk-btn-primary">
+        <i class="fa-solid fa-check"></i>
+        {% if is_edit %}Save changes{% else %}Create product{% endif %}
+      </button>
+    </div>
+
+  </form>
+
+</div>
+
+{% endblock %}

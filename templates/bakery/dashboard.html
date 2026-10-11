@@ -1,0 +1,126 @@
+{% extends 'bakery/base_bakery.html' %}
+{% block title %}Dashboard — LoafLink Bakery{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_sub %}Overview for {{ delivery_date|date:"D, d M Y" }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'bakery:production' %}" class="bk-btn bk-btn-primary">
+  <i class="fa-solid fa-fire-burner"></i> View Bake List
+</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- CUTOFF STATUS -->
+<div class="bk-cutoff {% if cutoff_passed %}closed{% else %}open{% endif %}">
+  <i class="fa-solid {% if cutoff_passed %}fa-lock{% else %}fa-clock{% endif %}"></i>
+  <div class="bk-cutoff-text">
+    {% if cutoff_passed %}
+      <strong>Order window closed</strong>
+      <span>Tomorrow's orders are locked. Retailers can no longer place new orders.</span>
+    {% else %}
+      <strong>Order window open until {{ cutoff_dt|time:"g:i A" }}</strong>
+      <span>Retailers can still place orders for {{ delivery_date|date:"D, d M" }}.</span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- STAT TILES -->
+<div class="bk-stats">
+  <div class="bk-stat">
+    <div class="bk-stat-icon purple"><i class="fa-solid fa-receipt"></i></div>
+    <div class="bk-stat-value">{{ order_count }}</div>
+    <div class="bk-stat-label">Orders for tomorrow</div>
+  </div>
+  <div class="bk-stat">
+    <div class="bk-stat-icon amber"><i class="fa-solid fa-bread-slice"></i></div>
+    <div class="bk-stat-value">{{ total_loaves }}</div>
+    <div class="bk-stat-label">Total loaves to bake</div>
+  </div>
+  <div class="bk-stat">
+    <div class="bk-stat-icon green"><i class="fa-solid fa-naira-sign"></i></div>
+    <div class="bk-stat-value">₦{{ total_revenue|floatformat:0 }}</div>
+    <div class="bk-stat-label">Revenue expected</div>
+  </div>
+  <div class="bk-stat">
+    <div class="bk-stat-icon blue"><i class="fa-solid fa-store"></i></div>
+    <div class="bk-stat-value">{{ pending_retailers_count }}</div>
+    <div class="bk-stat-label">Retailers awaiting approval</div>
+  </div>
+</div>
+
+<div class="bk-grid-2">
+
+  <!-- TOP PRODUCTS -->
+  <div class="bk-card">
+    <div class="bk-card-head">
+      <div class="bk-card-title">Top products for tomorrow</div>
+      <a href="{% url 'bakery:production' %}" class="bk-btn bk-btn-ghost bk-btn-sm">Full list →</a>
+    </div>
+
+    {% if product_summary %}
+      {% for p in product_summary %}
+        <div class="bk-production-line">
+          <div>
+            <div class="bk-production-name">{{ p.product__name }}</div>
+            <div class="bk-production-meta">per {{ p.product__unit }}</div>
+          </div>
+          <div class="bk-production-qty">
+            {{ p.total_qty }}
+            <small>{{ p.product__unit }}s</small>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="bk-empty" style="padding: 30px 10px;">
+        <i class="fa-solid fa-inbox"></i>
+        <p>No orders yet for tomorrow.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- RECENT ORDERS -->
+  <div class="bk-card">
+    <div class="bk-card-head">
+      <div class="bk-card-title">Latest incoming orders</div>
+      <a href="{% url 'bakery:orders_list' %}" class="bk-btn bk-btn-ghost bk-btn-sm">All orders →</a>
+    </div>
+
+    {% if recent_orders %}
+      {% for o in recent_orders %}
+        <a href="{% url 'bakery:order_detail' o.id %}" class="bk-production-line" style="display:flex;">
+          <div>
+            <div class="bk-production-name">{{ o.retailer.name }}</div>
+            <div class="bk-production-meta">Order #{{ o.id }} · {{ o.placed_at|date:"g:i A" }}</div>
+          </div>
+          <div style="text-align:right;">
+            <span class="bk-pill {{ o.status }}">{{ o.get_status_display }}</span>
+            <div class="bk-strong" style="margin-top:4px;">₦{{ o.total_amount }}</div>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="bk-empty" style="padding: 30px 10px;">
+        <i class="fa-solid fa-inbox"></i>
+        <p>No orders yet.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+{% if pending_retailers_count > 0 %}
+<div class="bk-card">
+  <div class="bk-flex-between">
+    <div>
+      <div class="bk-card-title">Retailers waiting for approval</div>
+      <p class="bk-muted bk-mt-1">{{ pending_retailers_count }} shop{{ pending_retailers_count|pluralize }} signed up and can't order yet.</p>
+    </div>
+    <a href="{% url 'bakery:retailers_list' %}" class="bk-btn bk-btn-primary">
+      <i class="fa-solid fa-check"></i> Review & approve
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

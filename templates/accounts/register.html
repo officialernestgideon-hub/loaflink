@@ -1,0 +1,134 @@
+{% extends 'accounts/base_auth.html' %}
+{% block title %}Create account — LoafLink{% endblock %}
+
+{% block card %}
+
+<h1 class="auth-title">Create your account</h1>
+<p class="auth-subtitle">Join LoafLink in under a minute. No credit card, no paperwork.</p>
+
+{% include 'partials/_toasts.html' %}
+
+<form method="post" novalidate id="registerForm">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="auth-error">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>{{ form.non_field_errors.0 }}</span>
+    </div>
+  {% endif %}
+
+  <div class="auth-form-group">
+    <label class="auth-label" for="{{ form.full_name.id_for_label }}">Full name</label>
+    <div class="auth-input-icon-wrap">
+      <i class="fa-regular fa-user auth-input-icon"></i>
+      <input type="text"
+             name="{{ form.full_name.name }}"
+             id="{{ form.full_name.id_for_label }}"
+             class="auth-input"
+             placeholder="e.g. Mama Ngozi"
+             value="{{ form.full_name.value|default:'' }}"
+             autocomplete="name"
+             required />
+    </div>
+    {% if form.full_name.errors %}
+      <div class="auth-error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ form.full_name.errors.0 }}</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="auth-form-group">
+    <label class="auth-label" for="{{ form.phone.id_for_label }}">Phone number</label>
+    <div class="auth-input-icon-wrap">
+      <i class="fa-solid fa-phone auth-input-icon"></i>
+      <input type="tel"
+             name="{{ form.phone.name }}"
+             id="{{ form.phone.id_for_label }}"
+             class="auth-input"
+             placeholder="+234 801 234 5678"
+             value="{{ form.phone.value|default:'' }}"
+             autocomplete="tel"
+             inputmode="tel"
+             data-format="phone"
+             required />
+    </div>
+    {% if form.phone.errors %}
+      <div class="auth-error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ form.phone.errors.0 }}</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="auth-form-group">
+    <label class="auth-label">I am a…</label>
+    <div class="role-picker">
+      <label class="role-option">
+        <input type="radio" name="{{ form.role.name }}" value="retailer"
+               {% if form.role.value == 'retailer' or not form.role.value %}checked{% endif %} />
+        <div class="role-option-inner">
+          <div class="role-option-icon"><i class="fa-solid fa-store"></i></div>
+          <div>
+            <div class="role-option-label">Retailer</div>
+            <div class="role-option-desc">I run a shop that sells bread</div>
+          </div>
+        </div>
+      </label>
+
+      <label class="role-option">
+        <input type="radio" name="{{ form.role.name }}" value="bakery"
+               {% if form.role.value == 'bakery' %}checked{% endif %} />
+        <div class="role-option-inner">
+          <div class="role-option-icon"><i class="fa-solid fa-industry"></i></div>
+          <div>
+            <div class="role-option-label">Bakery</div>
+            <div class="role-option-desc">I bake and supply bread</div>
+          </div>
+        </div>
+      </label>
+    </div>
+    {% if form.role.errors %}
+      <div class="auth-error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ form.role.errors.0 }}</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <button type="submit" class="auth-btn" id="submitBtn">
+    <span class="btn-label">Create account</span>
+    <i class="fa-solid fa-arrow-right btn-icon"></i>
+  </button>
+</form>
+
+<div class="auth-footer">
+  Already have an account? <a href="{% url 'accounts:login' %}">Log in</a>
+</div>
+
+<script>
+  // Auto-format phone numbers as they type
+  document.querySelectorAll('[data-format="phone"]').forEach(input => {
+    input.addEventListener('input', (e) => {
+      let v = e.target.value.replace(/[^\d+]/g, '');
+      if (v.startsWith('+')) {
+        v = '+' + v.slice(1).replace(/\D/g, '');
+      } else {
+        v = v.replace(/\D/g, '');
+      }
+      // Add spaces every 3 digits after the first 4 (visual only — will be stripped on backend)
+      e.target.value = v;
+    });
+  });
+
+  // Simple submit loading state
+  const form = document.getElementById('registerForm');
+  const btn = document.getElementById('submitBtn');
+  form.addEventListener('submit', () => {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating account…';
+  });
+</script>
+
+{% endblock %}

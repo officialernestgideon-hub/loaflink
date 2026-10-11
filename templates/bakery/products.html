@@ -1,0 +1,74 @@
+{% extends 'bakery/base_bakery.html' %}
+{% block title %}Products — LoafLink Bakery{% endblock %}
+{% block page_title %}Products{% endblock %}
+{% block page_sub %}Your bread catalogue{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'bakery:product_new' %}" class="bk-btn bk-btn-primary">
+  <i class="fa-solid fa-plus"></i> Add product
+</a>
+{% endblock %}
+
+{% block content %}
+
+{% if products %}
+<div class="bk-card" style="padding: 0;">
+  <div class="bk-table-wrap">
+    <table class="bk-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Unit</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td>
+            <div class="bk-strong">{{ p.name }}</div>
+            {% if p.description %}<div class="bk-muted">{{ p.description }}</div>{% endif %}
+            <div class="bk-muted" style="font-size:0.72rem;">slug: {{ p.slug }}</div>
+          </td>
+          <td class="bk-strong">₦{{ p.price }}</td>
+          <td>{{ p.get_unit_display }}</td>
+          <td>
+            {% if p.is_available %}
+              <span class="bk-pill success">Available</span>
+            {% else %}
+              <span class="bk-pill neutral">Hidden</span>
+            {% endif %}
+          </td>
+          <td style="text-align:right; white-space: nowrap;">
+            <a href="{% url 'bakery:product_edit' p.slug %}" class="bk-btn bk-btn-outline bk-btn-sm">
+              <i class="fa-solid fa-pen"></i> Edit
+            </a>
+            <form method="post" action="{% url 'bakery:product_toggle' p.slug %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="bk-btn bk-btn-ghost bk-btn-sm">
+                {% if p.is_available %}<i class="fa-solid fa-eye-slash"></i> Hide{% else %}<i class="fa-solid fa-eye"></i> Show{% endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="bk-card">
+  <div class="bk-empty">
+    <i class="fa-solid fa-bread-slice"></i>
+    <h3>No products yet</h3>
+    <p>Add your bread catalogue so retailers can start ordering.</p>
+    <a href="{% url 'bakery:product_new' %}" class="bk-btn bk-btn-primary">
+      <i class="fa-solid fa-plus"></i> Add your first product
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

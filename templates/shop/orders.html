@@ -1,0 +1,39 @@
+{% extends 'shop/base_shop.html' %}
+{% block title %}My orders — LoafLink{% endblock %}
+
+{% block content %}
+
+<div class="shop-page-head">
+  <h1>My orders</h1>
+  <p>All orders you've placed with {{ retailer.bakery.name }}</p>
+</div>
+
+{% if orders %}
+  {% for o in orders %}
+    <a href="{% url 'shop:order_detail' o.id %}" class="shop-order-row">
+      <div>
+        <div class="shop-order-id">Order #{{ o.id }}</div>
+        <div class="shop-order-meta">
+          Delivery: {{ o.delivery_date|date:"D, d M Y" }} · {{ o.total_loaves }} loaves
+        </div>
+      </div>
+      <div class="shop-order-right">
+        <span class="shop-pill {{ o.status }}">{{ o.get_status_display }}</span>
+        <div class="shop-order-amount">₦{{ o.total_amount }}</div>
+      </div>
+    </a>
+  {% endfor %}
+{% else %}
+  <div class="shop-card">
+    <div class="shop-empty">
+      <i class="fa-solid fa-receipt"></i>
+      <h3>No orders yet</h3>
+      <p>Your order history will appear here once you place your first order.</p>
+      <a href="{% url 'shop:catalog' %}" class="shop-btn shop-btn-primary">
+        <i class="fa-solid fa-bread-slice"></i> Browse catalog
+      </a>
+    </div>
+  </div>
+{% endif %}
+
+{% endblock %}

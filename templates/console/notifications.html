@@ -1,0 +1,41 @@
+{% extends 'console/base_console.html' %}
+{% block title %}Notifications — LoafLink Platform{% endblock %}
+{% block page_title %}Notification Log{% endblock %}
+{% block page_sub %}Last 200 notifications{% endblock %}
+
+{% block content %}
+
+<div class="pf-card">
+  <div class="pf-table-wrap">
+    <table class="pf-table">
+      <thead>
+        <tr>
+          <th>Sent</th>
+          <th>Channel</th>
+          <th>Recipient</th>
+          <th>Message</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for n in logs %}
+        <tr>
+          <td style="white-space: nowrap;">{{ n.created_at|date:"d M, g:i A" }}</td>
+          <td><span class="pf-pill neutral">{{ n.get_channel_display }}</span></td>
+          <td>{{ n.recipient }}</td>
+          <td style="max-width: 380px;">{{ n.message|truncatechars:80 }}</td>
+          <td>
+            <span class="pf-pill {% if n.status == 'sent' %}success{% elif n.status == 'failed' %}danger{% else %}neutral{% endif %}">
+              {{ n.get_status_display }}
+            </span>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center; padding: 32px; color:#a1a1aa;">No notifications logged yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

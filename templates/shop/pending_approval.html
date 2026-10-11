@@ -1,0 +1,64 @@
+{% extends 'shop/base_shop.html' %}
+{% block title %}Pending approval — LoafLink{% endblock %}
+
+{% block content %}
+
+<div class="shop-page-head">
+  <h1>Almost there!</h1>
+  <p>Your account is waiting for approval.</p>
+</div>
+
+<div class="shop-card">
+
+  <div class="shop-bakery-card">
+    <div class="icon"><i class="fa-solid fa-industry"></i></div>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; color:var(--shop-ink);">
+        {{ retailer.bakery.name }}
+      </div>
+      <div style="font-size:0.85rem; color:var(--shop-ink-faint); margin-top:2px;">
+        {{ retailer.bakery.address }}
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; padding: 24px 12px;">
+    <div style="
+      width: 72px; height: 72px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      background: var(--shop-purple-soft);
+      display: grid;
+      place-items: center;
+      color: var(--shop-purple-dark);
+      font-size: 1.6rem;">
+      <i class="fa-solid fa-hourglass-half"></i>
+    </div>
+
+    <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-size:1.15rem; margin-bottom:8px;">
+      Waiting for the bakery to approve
+    </h3>
+
+    <p style="font-size:0.92rem; max-width:380px; margin: 0 auto 20px;">
+      You've been linked to <strong>{{ retailer.bakery.name }}</strong>.
+      Once they approve your account, you'll be able to browse the catalog
+      and place orders.
+    </p>
+
+    <p style="font-size:0.82rem; color:var(--shop-ink-faint);">
+      This usually takes a few minutes. Refresh the page to check.
+    </p>
+  </div>
+
+  <div style="display:flex; gap:10px; margin-top: 12px;">
+    <a href="{% url 'shop:home' %}" class="shop-btn shop-btn-primary" style="flex:1;">
+      <i class="fa-solid fa-rotate-right"></i> Refresh
+    </a>
+    <a href="{% url 'accounts:logout' %}" class="shop-btn shop-btn-outline" style="flex:1;">
+      Log out
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: loaflink
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn bs.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        sync: false   # You'll set this manually in the Render dashboard

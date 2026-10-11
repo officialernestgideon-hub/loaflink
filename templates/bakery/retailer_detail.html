@@ -1,0 +1,81 @@
+{% extends 'bakery/base_bakery.html' %}
+{% block title %}{{ retailer.name }} — LoafLink Bakery{% endblock %}
+{% block page_title %}{{ retailer.name }}{% endblock %}
+{% block page_sub %}Retailer since {{ retailer.created_at|date:"d M Y" }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'bakery:retailers_list' %}" class="bk-btn bk-btn-outline">
+  <i class="fa-solid fa-arrow-left"></i> All retailers
+</a>
+{% endblock %}
+
+{% block content %}
+
+<div class="bk-grid-2">
+
+  <!-- RETAILER CARD -->
+  <div class="bk-card">
+    <div class="bk-card-head">
+      <div class="bk-card-title">Contact</div>
+      {% if retailer.is_active %}
+        <span class="bk-pill success">Active</span>
+      {% else %}
+        <span class="bk-pill pending">Pending approval</span>
+      {% endif %}
+    </div>
+
+    <div class="bk-form-group">
+      <div class="bk-label">Phone</div>
+      <div class="bk-strong">{{ retailer.phone }}</div>
+    </div>
+
+    <div class="bk-form-group">
+      <div class="bk-label">Address</div>
+      <div>{{ retailer.address }}</div>
+    </div>
+
+    <form method="post" action="{% url 'bakery:retailer_toggle' retailer.slug %}">
+      {% csrf_token %}
+      {% if retailer.is_active %}
+        <button type="submit" class="bk-btn bk-btn-danger bk-btn-block">
+          <i class="fa-solid fa-ban"></i> Suspend retailer
+        </button>
+      {% else %}
+        <button type="submit" class="bk-btn bk-btn-success bk-btn-block">
+          <i class="fa-solid fa-check"></i> Approve retailer
+        </button>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- RECENT ORDERS -->
+  <div class="bk-card">
+    <div class="bk-card-head">
+      <div class="bk-card-title">Recent orders</div>
+      <span class="bk-muted">Last 10</span>
+    </div>
+
+    {% if recent_orders %}
+      {% for o in recent_orders %}
+      <a href="{% url 'bakery:order_detail' o.id %}" class="bk-production-line" style="display:flex;">
+        <div>
+          <div class="bk-production-name">Order #{{ o.id }}</div>
+          <div class="bk-production-meta">{{ o.delivery_date|date:"D, d M Y" }} · {{ o.total_loaves }} loaves</div>
+        </div>
+        <div style="text-align:right;">
+          <span class="bk-pill {{ o.status }}">{{ o.get_status_display }}</span>
+          <div class="bk-strong" style="margin-top:4px;">₦{{ o.total_amount }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    {% else %}
+      <div class="bk-empty" style="padding: 30px 10px;">
+        <i class="fa-solid fa-inbox"></i>
+        <p>No orders from this retailer yet.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}

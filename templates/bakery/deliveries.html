@@ -1,0 +1,78 @@
+{% extends 'bakery/base_bakery.html' %}
+{% block title %}Deliveries — LoafLink Bakery{% endblock %}
+{% block page_title %}Delivery Manifest{% endblock %}
+{% block page_sub %}Routes and quantities for {{ delivery_date|date:"D, d M Y" }}{% endblock %}
+
+{% block topbar_actions %}
+<button onclick="window.print()" class="bk-btn bk-btn-outline">
+  <i class="fa-solid fa-print"></i> Print
+</button>
+{% endblock %}
+
+{% block content %}
+
+<!-- DATE PICKER -->
+<form method="get" class="bk-date-row">
+  <label class="bk-label" style="margin:0;">Delivery date:</label>
+  <input type="date" name="date" value="{{ delivery_date|date:'Y-m-d' }}">
+  <button type="submit" class="bk-btn bk-btn-primary">View</button>
+</form>
+
+<!-- SUMMARY -->
+<div class="bk-stats">
+  <div class="bk-stat">
+    <div class="bk-stat-icon purple"><i class="fa-solid fa-location-dot"></i></div>
+    <div class="bk-stat-value">{{ total_stops }}</div>
+    <div class="bk-stat-label">Delivery stops</div>
+  </div>
+  <div class="bk-stat">
+    <div class="bk-stat-icon amber"><i class="fa-solid fa-bread-slice"></i></div>
+    <div class="bk-stat-value">{{ total_loaves }}</div>
+    <div class="bk-stat-label">Total loaves to load</div>
+  </div>
+</div>
+
+<!-- MANIFEST -->
+{% if orders %}
+  {% for order in orders %}
+  <div class="bk-manifest-order">
+    <div class="bk-manifest-head">
+      <div>
+        <div class="bk-manifest-shop">{{ order.retailer.name }}</div>
+        <div class="bk-muted" style="margin-top:4px;">
+          <i class="fa-solid fa-location-dot"></i> {{ order.retailer.address }}
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <span class="bk-pill {{ order.status }}">{{ order.get_status_display }}</span>
+        <div class="bk-strong" style="margin-top:4px;">₦{{ order.total_amount }}</div>
+      </div>
+    </div>
+
+    <div class="bk-manifest-items">
+      {% for item in order.items.all %}
+      <span class="bk-manifest-item">
+        {{ item.product.name }} <strong>×{{ item.quantity }}</strong>
+      </span>
+      {% endfor %}
+    </div>
+
+    {% if order.notes %}
+    <div class="bk-manifest-note">
+      <i class="fa-solid fa-note-sticky"></i>
+      <strong>Note:</strong> {{ order.notes }}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+<div class="bk-card">
+  <div class="bk-empty">
+    <i class="fa-solid fa-truck-fast"></i>
+    <h3>No deliveries for this date</h3>
+    <p>Try a different date, or check back once orders come in.</p>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

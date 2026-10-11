@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{% block title %}Bakery — LoafLink{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="{% static 'bakery/bakery.css' %}" />
+<link rel="stylesheet" href="{% static 'css/toasts.css' %}" />
+
+<link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}" />
+<link rel="alternate icon" href="{% static 'img/favicon.ico' %}" />
+<link rel="apple-touch-icon" href="{% static 'img/logo-icon.svg' %}" />
+</head>
+<body class="bakery-body">
+
+<div class="bakery-shell">
+
+  <!-- ============ SIDEBAR (desktop) ============ -->
+  <aside class="bakery-sidebar">
+    <a href="{% url 'bakery:dashboard' %}" class="bakery-logo">
+      <img src="{% static 'img/logo-primary.svg' %}" alt="LoafLink" style="height: 28px; width: auto;" />
+    </a>
+
+    <div class="bakery-sidebar-section">Overview</div>
+    <a href="{% url 'bakery:dashboard' %}" class="bakery-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="fa-solid fa-gauge-high"></i> Dashboard
+    </a>
+    <a href="{% url 'bakery:production' %}" class="bakery-nav-link {% if request.resolver_match.url_name == 'production' %}active{% endif %}">
+      <i class="fa-solid fa-fire-burner"></i> Bake List
+    </a>
+
+    <div class="bakery-sidebar-section">Operations</div>
+    <a href="{% url 'bakery:orders_list' %}" class="bakery-nav-link {% if 'orders' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-receipt"></i> Orders
+    </a>
+    <a href="{% url 'bakery:deliveries' %}" class="bakery-nav-link {% if request.resolver_match.url_name == 'deliveries' %}active{% endif %}">
+      <i class="fa-solid fa-truck-fast"></i> Deliveries
+    </a>
+
+    <div class="bakery-sidebar-section">Catalogue</div>
+    <a href="{% url 'bakery:products_list' %}" class="bakery-nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-bread-slice"></i> Products
+    </a>
+    <a href="{% url 'bakery:retailers_list' %}" class="bakery-nav-link {% if 'retailer' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-store"></i> Retailers
+    </a>
+
+    <div class="bakery-sidebar-section">Account</div>
+    <a href="{% url 'bakery:settings_view' %}" class="bakery-nav-link {% if request.resolver_match.url_name == 'settings_view' %}active{% endif %}">
+      <i class="fa-solid fa-gear"></i> Settings
+    </a>
+    <a href="{% url 'accounts:logout' %}" class="bakery-nav-link">
+      <i class="fa-solid fa-right-from-bracket"></i> Log out
+    </a>
+
+    <div class="bakery-sidebar-foot">
+      <div class="bakery-user-chip">
+        <div class="avatar">{{ request.user.full_name|default:request.user.phone|slice:":1"|upper }}</div>
+        <div style="min-width:0;">
+          <div class="name">{{ request.user.full_name|default:request.user.phone }}</div>
+          <div class="role">{{ request.user.get_role_display }}</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="bakery-main">
+
+    <header class="bakery-topbar">
+      <div>
+        <div class="bakery-page-title">{% block page_title %}Dashboard{% endblock %}</div>
+        <div class="bakery-page-sub">{% block page_sub %}{% endblock %}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        {% block topbar_actions %}{% endblock %}
+      </div>
+    </header>
+
+    <main class="bakery-content">
+
+      {% include 'partials/_toasts.html' %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<!-- ============ MOBILE NAV ============ -->
+<nav class="bakery-mobile-nav">
+  <div class="bakery-mobile-nav-inner">
+    <a href="{% url 'bakery:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="fa-solid fa-gauge-high"></i>
+      <span>Home</span>
+    </a>
+    <a href="{% url 'bakery:production' %}" class="{% if request.resolver_match.url_name == 'production' %}active{% endif %}">
+      <i class="fa-solid fa-fire-burner"></i>
+      <span>Bake</span>
+    </a>
+    <a href="{% url 'bakery:orders_list' %}" class="{% if 'orders' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-receipt"></i>
+      <span>Orders</span>
+    </a>
+    <a href="{% url 'bakery:retailers_list' %}" class="{% if 'retailer' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="fa-solid fa-store"></i>
+      <span>Shops</span>
+    </a>
+    <a href="{% url 'bakery:settings_view' %}" class="{% if request.resolver_match.url_name == 'settings_view' %}active{% endif %}">
+      <i class="fa-solid fa-gear"></i>
+      <span>Settings</span>
+    </a>
+  </div>
+</nav>
+
+</body>
+</html>

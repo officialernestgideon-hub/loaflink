@@ -1,0 +1,12 @@
+{% load static %}
+{# Renders Django messages as a JSON payload that toasts.js picks up #}
+{% if messages %}
+  <script id="django-toast-payload" type="application/json">
+    [
+      {% for m in messages %}
+        {"type": "{% if m.tags == 'error' %}error{% elif m.tags == 'warning' %}warning{% elif m.tags == 'success' %}success{% else %}info{% endif %}", "message": "{{ m|escapejs }}"}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  </script>
+{% endif %}
+<script src="{% static 'js/toasts.js' %}"></script>

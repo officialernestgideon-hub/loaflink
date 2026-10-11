@@ -1,0 +1,68 @@
+{% extends 'bakery/base_bakery.html' %}
+{% block title %}Retailers — LoafLink Bakery{% endblock %}
+{% block page_title %}Retailers{% endblock %}
+{% block page_sub %}{{ active_count }} active · {{ pending_count }} awaiting approval{% endblock %}
+
+{% block content %}
+
+{% if pending_count > 0 %}
+<div class="bk-cutoff open">
+  <i class="fa-solid fa-user-clock"></i>
+  <div class="bk-cutoff-text">
+    <strong>{{ pending_count }} retailer{{ pending_count|pluralize }} waiting for approval</strong>
+    <span>Approve them so they can start placing orders.</span>
+  </div>
+</div>
+{% endif %}
+
+{% if retailers %}
+<div class="bk-retailer-grid">
+  {% for r in retailers %}
+  <div class="bk-retailer-card">
+    <div class="bk-retailer-head">
+      <div style="display:flex; gap:12px; align-items:flex-start;">
+        <div class="bk-retailer-avatar">{{ r.name|slice:":1"|upper }}</div>
+        <div>
+          <div class="bk-retailer-name">{{ r.name }}</div>
+          <div class="bk-retailer-meta"><i class="fa-solid fa-phone"></i> {{ r.phone }}</div>
+          <div class="bk-retailer-meta"><i class="fa-solid fa-location-dot"></i> {{ r.address|truncatechars:30 }}</div>
+        </div>
+      </div>
+      {% if r.is_active %}
+        <span class="bk-pill success">Active</span>
+      {% else %}
+        <span class="bk-pill pending">Pending</span>
+      {% endif %}
+    </div>
+
+    <div class="bk-retailer-actions">
+      <a href="{% url 'bakery:retailer_detail' r.slug %}" class="bk-btn bk-btn-outline bk-btn-sm" style="flex:1;">
+        View
+      </a>
+      <form method="post" action="{% url 'bakery:retailer_toggle' r.slug %}" style="flex:1;">
+        {% csrf_token %}
+        {% if r.is_active %}
+          <button type="submit" class="bk-btn bk-btn-danger bk-btn-sm bk-btn-block">
+            Suspend
+          </button>
+        {% else %}
+          <button type="submit" class="bk-btn bk-btn-success bk-btn-sm bk-btn-block">
+            <i class="fa-solid fa-check"></i> Approve
+          </button>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="bk-card">
+  <div class="bk-empty">
+    <i class="fa-solid fa-store"></i>
+    <h3>No retailers yet</h3>
+    <p>Retailers who sign up and pick your bakery will appear here.</p>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

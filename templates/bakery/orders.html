@@ -1,0 +1,75 @@
+{% extends 'bakery/base_bakery.html' %}
+{% block title %}Orders — LoafLink Bakery{% endblock %}
+{% block page_title %}Orders{% endblock %}
+{% block page_sub %}All orders placed with your bakery{% endblock %}
+
+{% block content %}
+
+<!-- TABS -->
+<div class="bk-tabs">
+  <a href="?{% if date_filter %}date={{ date_filter }}{% endif %}" class="bk-tab {% if not status_filter %}active{% endif %}">All</a>
+  {% for value, label in status_choices %}
+    <a href="?status={{ value }}{% if date_filter %}&date={{ date_filter }}{% endif %}"
+       class="bk-tab {% if status_filter == value %}active{% endif %}">
+      {{ label }}
+    </a>
+  {% endfor %}
+</div>
+
+<!-- DATE FILTER -->
+<div class="bk-date-row">
+  <span class="bk-muted">Quick filters:</span>
+  <a href="?{% if status_filter %}status={{ status_filter }}&{% endif %}date=today" class="bk-tab {% if date_filter == 'today' %}active{% endif %}">Today</a>
+  <a href="?{% if status_filter %}status={{ status_filter }}&{% endif %}date=tomorrow" class="bk-tab {% if date_filter == 'tomorrow' %}active{% endif %}">Tomorrow</a>
+  <a href="?{% if status_filter %}status={{ status_filter }}&{% endif %}date=past" class="bk-tab {% if date_filter == 'past' %}active{% endif %}">Past</a>
+</div>
+
+{% if orders %}
+<div class="bk-card" style="padding: 0;">
+  <div class="bk-table-wrap">
+    <table class="bk-table">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Retailer</th>
+          <th>Delivery</th>
+          <th>Loaves</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><span class="bk-strong">#{{ o.id }}</span></td>
+          <td>
+            <div class="bk-strong">{{ o.retailer.name }}</div>
+            <div class="bk-muted">{{ o.retailer.phone }}</div>
+          </td>
+          <td>{{ o.delivery_date|date:"D, d M Y" }}</td>
+          <td>{{ o.total_loaves }}</td>
+          <td><span class="bk-strong">₦{{ o.total_amount }}</span></td>
+          <td><span class="bk-pill {{ o.status }}">{{ o.get_status_display }}</span></td>
+          <td style="text-align:right;">
+            <a href="{% url 'bakery:order_detail' o.id %}" class="bk-btn bk-btn-ghost bk-btn-sm">
+              View →
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="bk-card">
+  <div class="bk-empty">
+    <i class="fa-solid fa-receipt"></i>
+    <h3>No orders found</h3>
+    <p>Try adjusting the filters, or check back later.</p>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

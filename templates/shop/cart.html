@@ -1,0 +1,81 @@
+{% extends 'shop/base_shop.html' %}
+{% block title %}Cart — LoafLink{% endblock %}
+
+{% block content %}
+
+<div class="shop-page-head">
+  <h1>Your order</h1>
+  <p>For delivery on <strong>{{ delivery_date|date:"D, d M" }}</strong></p>
+</div>
+
+{% if cart_lines %}
+
+<div class="shop-card">
+  {% for line in cart_lines %}
+  <div class="shop-cart-line">
+    <div>
+      <div class="shop-cart-line-name">{{ line.product.name }}</div>
+      <div class="shop-cart-line-meta">
+        {{ line.quantity }} × ₦{{ line.unit_price }} per {{ line.product.unit }}
+      </div>
+    </div>
+    <div style="text-align: right;">
+      <div class="shop-cart-line-total">₦{{ line.subtotal }}</div>
+      <form method="post" action="{% url 'shop:cart_remove' line.product.id %}" style="margin-top:6px;">
+        {% csrf_token %}
+        <button type="submit" class="shop-btn shop-btn-ghost" style="color:#ef4444; padding: 4px 10px; font-size: 0.8rem;">
+          <i class="fa-solid fa-trash"></i> Remove
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="shop-cart-summary">
+  <div class="shop-cart-total-row">
+    <span>Total loaves</span>
+    <span>{{ cart_count }}</span>
+  </div>
+  <div class="shop-cart-total-row grand">
+    <span>Total</span>
+    <span>₦{{ cart_total }}</span>
+  </div>
+
+  {% if can_order %}
+    <a href="{% url 'shop:checkout' %}" class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg" style="margin-top: 18px;">
+      Proceed to checkout <i class="fa-solid fa-arrow-right"></i>
+    </a>
+  {% else %}
+    <button class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg" disabled style="margin-top: 18px;">
+      <i class="fa-solid fa-lock"></i> Cutoff passed
+    </button>
+    <p style="text-align: center; font-size: 0.85rem; margin-top: 12px; color: var(--shop-ink-faint);">
+      You can still edit your cart — checkout reopens tomorrow morning.
+    </p>
+  {% endif %}
+
+  <form method="post" action="{% url 'shop:cart_clear' %}" style="margin-top: 10px;">
+    {% csrf_token %}
+    <button type="submit" class="shop-btn shop-btn-outline shop-btn-block">
+      Clear cart
+    </button>
+  </form>
+</div>
+
+{% else %}
+
+<div class="shop-card">
+  <div class="shop-empty">
+    <i class="fa-solid fa-basket-shopping"></i>
+    <h3>Your cart is empty</h3>
+    <p>Browse the catalog and add bread to your order.</p>
+    <a href="{% url 'shop:catalog' %}" class="shop-btn shop-btn-primary">
+      <i class="fa-solid fa-bread-slice"></i> Browse catalog
+    </a>
+  </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

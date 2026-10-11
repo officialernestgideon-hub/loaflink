@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{% block title %}LoafLink Shop{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="{% static 'shop/shop.css' %}" />
+<link rel="stylesheet" href="{% static 'css/toasts.css' %}" />
+
+<link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}" />
+<link rel="alternate icon" href="{% static 'img/favicon.ico' %}" />
+<link rel="apple-touch-icon" href="{% static 'img/logo-icon.svg' %}" />
+</head>
+<body class="shop-body">
+
+<!-- TOP BAR -->
+<header class="shop-topbar">
+  <div class="shop-topbar-inner">
+    <a href="{% url 'shop:home' %}" class="shop-logo">
+      <img src="{% static 'img/logo-primary.svg' %}" alt="LoafLink" style="height: 32px; width: auto;" />
+    </a>
+    
+    <div class="shop-topbar-actions">
+      {% if cart_count %}
+      <a href="{% url 'shop:cart' %}" class="shop-cart-btn">
+        <i class="fa-solid fa-basket-shopping"></i>
+        Cart
+        <span class="shop-cart-badge">{{ cart_count }}</span>
+      </a>
+      <a href="{% url 'accounts:logout' %}" class="shop-cart-btn">
+        logout
+      </a>
+      {% else %}
+      <a href="{% url 'shop:cart' %}" class="shop-cart-btn">
+        <i class="fa-solid fa-basket-shopping"></i>
+        Cart
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="shop-container">
+
+  {% include 'partials/_toasts.html' %}
+
+  {% block content %}{% endblock %}
+
+</main>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="shop-bottom-nav">
+  <div class="shop-bottom-nav-inner">
+    <a href="{% url 'shop:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="{% url 'shop:catalog' %}" class="{% if request.resolver_match.url_name == 'catalog' %}active{% endif %}">
+      <i class="fa-solid fa-bread-slice"></i>
+      <span>Catalog</span>
+    </a>
+    <a href="{% url 'shop:cart' %}" class="{% if request.resolver_match.url_name == 'cart' %}active{% endif %}">
+      <i class="fa-solid fa-basket-shopping"></i>
+      <span>Cart</span>
+    </a>
+    <a href="{% url 'shop:orders' %}" class="{% if request.resolver_match.url_name == 'orders' %}active{% endif %}">
+      <i class="fa-solid fa-receipt"></i>
+      <span>Orders</span>
+    </a>
+
+    {% comment %} <a href="{% url 'accounts:logout' %}">
+      <i class="fa-solid fa-receipt"></i>
+      <span>logout</span>
+    </a> {% endcomment %}
+  </div>
+</nav>
+
+</body>
+</html>

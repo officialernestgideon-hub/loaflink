@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Set up your shop — LoafLink</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="{% static 'shop/shop.css' %}" />
+</head>
+<body class="shop-body">
+
+<div class="shop-setup-wrap">
+  <div class="shop-setup-inner">
+
+    <!-- LOGO -->
+    <div class="shop-setup-logo">
+      <span class="shop-setup-logo-mark"><i class="fa-solid fa-bread-slice"></i></span>
+      LoafLink
+    </div>
+
+    {% if no_bakeries %}
+
+      <div class="shop-setup-header">
+        <h1>No bakeries available yet</h1>
+        <p>LoafLink hasn't onboarded any bakeries in your area yet. Please check back soon.</p>
+      </div>
+
+      <a href="{% url 'accounts:logout' %}" class="shop-btn shop-btn-outline shop-btn-block" style="margin-top: 20px;">
+        Log out
+      </a>
+
+    {% else %}
+
+      <div class="shop-setup-header">
+        <h1>One last step</h1>
+        <p>Tell us which bakery you buy from and where to deliver your bread.</p>
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="shop-error" style="margin-bottom: 16px;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>{{ form.non_field_errors.0 }}</span>
+        </div>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="shop-setup-card">
+
+          <div class="shop-form-group">
+            <label class="shop-label" for="{{ form.bakery.id_for_label }}">
+              <i class="fa-solid fa-industry"></i> Choose your bakery <span class="shop-required">*</span>
+            </label>
+            {{ form.bakery }}
+            <span class="shop-help">{{ form.bakery.help_text }}</span>
+            {% if form.bakery.errors %}
+              <div class="shop-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>{{ form.bakery.errors.0 }}</span>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="shop-form-group">
+            <label class="shop-label" for="{{ form.state.id_for_label }}">
+              <i class="fa-solid fa-map"></i> State <span class="shop-required">*</span>
+            </label>
+            {{ form.state }}
+            <span class="shop-help">{{ form.state.help_text }}</span>
+            {% if form.state.errors %}
+              <div class="shop-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>{{ form.state.errors.0 }}</span>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="shop-form-group" style="margin-bottom: 0;">
+            <label class="shop-label" for="{{ form.address.id_for_label }}">
+              <i class="fa-solid fa-location-dot"></i> Delivery address <span class="shop-required">*</span>
+            </label>
+            {{ form.address }}
+            <span class="shop-help">{{ form.address.help_text }}</span>
+            {% if form.address.errors %}
+              <div class="shop-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>{{ form.address.errors.0 }}</span>
+              </div>
+            {% endif %}
+          </div>
+
+        </div>
+
+        <div class="shop-setup-note">
+          <i class="fa-solid fa-circle-info"></i>
+          <div>
+            <strong>What happens next?</strong>
+            <span>The bakery you choose will review your account. Once approved, you can start placing orders right away.</span>
+          </div>
+        </div>
+
+        <button type="submit" class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg">
+          <i class="fa-solid fa-check"></i> Confirm bakery
+        </button>
+
+      </form>
+
+      <div class="shop-setup-foot">
+        <a href="{% url 'accounts:logout' %}">Log out</a>
+      </div>
+
+    {% endif %}
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+{% extends 'console/base_console.html' %}
+{% block title %}Bakeries — LoafLink Platform{% endblock %}
+{% block page_title %}Bakeries{% endblock %}
+{% block page_sub %}{{ bakeries|length }} total{% endblock %}
+
+{% block content %}
+
+<div class="pf-card">
+  <div class="pf-table-wrap">
+    <table class="pf-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Owner phone</th>
+          <th>Retailers</th>
+          <th>Orders</th>
+          <th>Status</th>
+          <th>Joined</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bakeries %}
+        <tr>
+          <td>
+            <div class="pf-row-strong">{{ b.name }}</div>
+            <div class="pf-row-meta">{{ b.slug }}</div>
+          </td>
+          <td>{{ b.user.phone }}</td>
+          <td>{{ b.retailer_count }}</td>
+          <td>{{ b.order_count }}</td>
+          <td>
+            {% if b.is_active %}
+              <span class="pf-pill success">Active</span>
+            {% else %}
+              <span class="pf-pill neutral">Inactive</span>
+            {% endif %}
+          </td>
+          <td>{{ b.created_at|date:"d M Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center; padding: 32px; color:#a1a1aa;">No bakeries yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

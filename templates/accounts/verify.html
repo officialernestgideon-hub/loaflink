@@ -1,0 +1,174 @@
+{% extends 'accounts/base_auth.html' %}
+{% block title %}Verify code — LoafLink{% endblock %}
+
+{% block card %}
+
+<div class="otp-header">
+  <h1 class="auth-title">Enter your code</h1>
+  <p class="auth-subtitle" style="margin-bottom: 0;">We sent a 6-digit code to</p>
+  <div class="otp-phone">
+    <i class="fa-solid fa-phone"></i>
+    {{ phone }}
+  </div>
+</div>
+
+{% include 'partials/_toasts.html' %}
+
+<form method="post" novalidate id="verifyForm">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="auth-error">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>{{ form.non_field_errors.0 }}</span>
+    </div>
+  {% endif %}
+
+  <!-- Hidden real input that gets submitted -->
+  <input type="text"
+         name="{{ form.code.name }}"
+         id="otpHidden"
+         class="otp-hidden-input"
+         maxlength="6"
+         inputmode="numeric"
+         autocomplete="one-time-code"
+         value="{{ form.code.value|default:'' }}" />
+
+  <div class="otp-inputs" id="otpBoxes">
+    <input class="otp-cell" type="text" inputmode="numeric" maxlength="1" autofocus />
+    <input class="otp-cell" type="text" inputmode="numeric" maxlength="1" />
+    <input class="otp-cell" type="text" inputmode="numeric" maxlength="1" />
+    <input class="otp-cell" type="text" inputmode="numeric" maxlength="1" />
+    <input class="otp-cell" type="text" inputmode="numeric" maxlength="1" />
+    <input class="otp-cell" type="text" inputmode="numeric" maxlength="1" />
+  </div>
+
+  {% if form.code.errors %}
+    <div class="auth-error" style="justify-content: center;">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ form.code.errors.0 }}</span>
+    </div>
+  {% endif %}
+
+  <button type="submit" class="auth-btn" id="submitBtn">
+    <span class="btn-label">Verify & log in</span>
+    <i class="fa-solid fa-unlock btn-icon"></i>
+  </button>
+</form>
+
+<!-- Resend form (separate so it doesn't interfere with main verify submit) -->
+<form method="post" action="{% url 'accounts:resend_otp' %}" id="resendForm">
+  {% csrf_token %}
+  <div class="otp-resend-row">
+    Didn't get the code?
+    <button type="submit" class="otp-resend-btn" id="resendBtn">Resend</button>
+    <span id="resendTimer" style="display:none;">
+      in <strong id="resendCount">60</strong>s
+    </span>
+  </div>
+</form>
+
+<div class="auth-footer">
+  Wrong number? <a href="{% url 'accounts:login' %}">Try again</a>
+</div>
+
+<script>
+(function() {
+  const boxes = Array.from(document.querySelectorAll('#otpBoxes .otp-cell'));
+  const hidden = document.getElementById('otpHidden');
+  const verifyForm = document.getElementById('verifyForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const resendBtn = document.getElementById('resendBtn');
+  const resendTimer = document.getElementById('resendTimer');
+  const resendCount = document.getElementById('resendCount');
+
+  // Pre-fill from any previous value
+  if (hidden.value) {
+    hidden.value.split('').forEach((ch, i) => {
+      if (boxes[i]) { boxes[i].value = ch; boxes[i].classList.add('filled'); }
+    });
+    const nextEmpty = boxes.find(b => !b.value) || boxes[boxes.length - 1];
+    nextEmpty.focus();
+  }
+
+  function updateHidden() {
+    const val = boxes.map(b => b.value).join('');
+    hidden.value = val;
+    // Auto submit when all 6 entered
+    if (val.length === 6) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> Verifying…';
+      verifyForm.submit();
+    }
+  }
+
+  boxes.forEach((box, idx) => {
+    // Only digits
+    box.addEventListener('input', (e) => {
+      const v = e.target.value.replace(/\D/g, '');
+      e.target.value = v.slice(-1);
+      e.target.classList.toggle('filled', !!e.target.value);
+      if (e.target.value && idx < boxes.length - 1) {
+        boxes[idx + 1].focus();
+      }
+      updateHidden();
+    });
+
+    // Handle paste of full code
+    box.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      if (!pasted) return;
+      pasted.split('').forEach((ch, i) => {
+        if (boxes[i]) { boxes[i].value = ch; boxes[i].classList.add('filled'); }
+      });
+      const next = Math.min(pasted.length, boxes.length - 1);
+      boxes[next].focus();
+      updateHidden();
+    });
+
+    // Backspace to previous box
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+        boxes[idx - 1].focus();
+        boxes[idx - 1].value = '';
+        boxes[idx - 1].classList.remove('filled');
+        updateHidden();
+      }
+      if (e.key === 'ArrowLeft' && idx > 0) boxes[idx - 1].focus();
+      if (e.key === 'ArrowRight' && idx < boxes.length - 1) boxes[idx + 1].focus();
+    });
+  });
+
+  // Resend cooldown
+  let cooldown = 60;
+  let timer = null;
+
+  function startCooldown() {
+    resendBtn.disabled = true;
+    resendTimer.style.display = 'inline';
+    resendCount.textContent = cooldown;
+    timer = setInterval(() => {
+      cooldown -= 1;
+      resendCount.textContent = cooldown;
+      if (cooldown <= 0) {
+        clearInterval(timer);
+        resendBtn.disabled = false;
+        resendTimer.style.display = 'none';
+        cooldown = 60;
+      }
+    }, 1000);
+  }
+
+  // Start cooldown on page load if a code was just sent
+  {% if messages %}
+    startCooldown();
+  {% endif %}
+
+  document.getElementById('resendForm').addEventListener('submit', () => {
+    startCooldown();
+  });
+})();
+</script>
+
+{% endblock %}

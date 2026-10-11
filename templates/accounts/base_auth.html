@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{% block title %}LoafLink{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="{% static 'css/auth.css' %}" />
+<link rel="stylesheet" href="{% static 'css/toasts.css' %}" />
+
+<link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}" />
+<link rel="alternate icon" href="{% static 'img/favicon.ico' %}" />
+<link rel="apple-touch-icon" href="{% static 'img/logo-icon.svg' %}" />
+</head>
+<body class="auth-body">
+
+<div class="auth-shell">
+
+  <!-- LEFT PANEL — brand story (hidden on mobile) -->
+  <aside class="auth-aside">
+    <a href="/" class="logo">
+      <img src="{% static 'img/logo-primary-dark.svg' %}" alt="LoafLink" style="height: 32px; width: auto;" />
+    </a>
+
+    <div class="auth-aside-content">
+      <h2>Bake exactly what sells.</h2>
+      <p>Join the bakeries and retailers eliminating bread waste across the city.</p>
+
+      <ul class="auth-perks">
+        <li><i class="fa-solid fa-check"></i> 8:00 PM order lock — no waste</li>
+        <li><i class="fa-solid fa-check"></i> Auto-generated bake list</li>
+        <li><i class="fa-solid fa-check"></i> Instant WhatsApp alerts</li>
+        <li><i class="fa-solid fa-check"></i> Zero paperwork</li>
+      </ul>
+    </div>
+
+    <div class="auth-aside-foot">
+      <div class="auth-aside-stats">
+        <div>
+          <strong>0%</strong>
+          <span>Waste goal</span>
+        </div>
+        <div>
+          <strong>60s</strong>
+          <span>To order</span>
+        </div>
+        <div>
+          <strong>24/7</strong>
+          <span>Visibility</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT PANEL — form -->
+  <main class="auth-main">
+    <div class="auth-mobile-brand">
+      <a href="/" class="auth-brand">
+        <span class="auth-brand-mark"><i class="fa-solid fa-bread-slice"></i></span>
+        <span>LoafLink</span>
+      </a>
+    </div>
+
+    <div class="auth-card">
+      {% block card %}{% endblock %}
+    </div>
+
+    <p class="auth-legal">
+      By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+    </p>
+  </main>
+
+</div>
+
+</body>
+</html>

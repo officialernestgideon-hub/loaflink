@@ -1,0 +1,77 @@
+{% extends 'shop/base_shop.html' %}
+{% comment %} {% load static %}  {% endcomment %}
+{% block title %}Home — LoafLink{% endblock %}
+
+{% block content %}
+
+<div class="shop-page-head">
+  <h1>Hi, {{ retailer.name }} 👋</h1>
+  <p>Ordering from <strong>{{ bakery.name }}</strong></p>
+</div>
+
+<!-- CUTOFF BANNER -->
+<div class="shop-cutoff {% if can_order %}open{% else %}closed{% endif %}">
+  <div class="shop-cutoff-icon">
+    {% if can_order %}<i class="fa-solid fa-clock"></i>{% else %}<i class="fa-solid fa-lock"></i>{% endif %}
+  </div>
+  <div class="shop-cutoff-text">
+    {% if can_order %}
+      <strong>Ordering is open</strong>
+      <span>Place your order for <strong>{{ delivery_date|date:"D, d M" }}</strong> before {{ cutoff_dt|time:"g:i A" }}.</span>
+    {% else %}
+      <strong>Ordering is closed</strong>
+      <span>Cutoff passed. Next order window opens tomorrow morning.</span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- TODAY'S ORDER -->
+{% if today_order %}
+<div class="shop-card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+    <h3 style="font-size:1.05rem;">Tomorrow's order</h3>
+    <span class="shop-pill {{ today_order.status }}">{{ today_order.get_status_display }}</span>
+  </div>
+  <div style="font-size:0.9rem; color:var(--shop-ink-mid); margin-bottom:16px;">
+    {{ today_order.total_loaves }} loaves · ₦{{ today_order.total_amount }}
+  </div>
+  <a href="{% url 'shop:order_detail' today_order.id %}" class="shop-btn shop-btn-outline shop-btn-block">
+    View order
+  </a>
+</div>
+{% elif can_order %}
+<div class="shop-card">
+  <div class="shop-empty" style="padding: 30px 10px;">
+    <i class="fa-solid fa-basket-shopping"></i>
+    <h3>No order yet for tomorrow</h3>
+    <p>Place it before {{ cutoff_dt|time:"g:i A" }} to secure your bread.</p>
+    <a href="{% url 'shop:catalog' %}" class="shop-btn shop-btn-primary">
+       Start an order
+    </a>
+  </div>
+</div>
+{% endif %}
+
+<!-- RECENT ORDERS -->
+{% if recent_orders %}
+<div style="margin-top: 24px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <h3 style="font-size:1rem;">Recent orders</h3>
+    <a href="{% url 'shop:orders' %}" class="shop-btn shop-btn-ghost">See all →</a>
+  </div>
+  {% for o in recent_orders %}
+    <a href="{% url 'shop:order_detail' o.id %}" class="shop-order-row">
+      <div>
+        <div class="shop-order-id">#{{ o.id }}</div>
+        <div class="shop-order-meta">{{ o.delivery_date|date:"D, d M" }} · {{ o.total_loaves }} loaves</div>
+      </div>
+      <div class="shop-order-right">
+        <span class="shop-pill {{ o.status }}">{{ o.get_status_display }}</span>
+        <div class="shop-order-amount">₦{{ o.total_amount }}</div>
+      </div>
+    </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

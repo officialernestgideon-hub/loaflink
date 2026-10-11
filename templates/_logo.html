@@ -1,0 +1,90 @@
+{% comment %} {% load static %}
+<style>
+  .ll-logo img {
+  display: block;
+  height: 32px;
+  width: auto;
+}
+
+@media (max-width: 480px) {
+  .ll-logo img { height: 26px; }
+}
+</style>
+
+<a href="{{ logo_href|default:'/' }}" class="ll-logo">
+  <img src="{% static 'img/logo-primary.svg' %}" alt="LoafLink" class="ll-logo-img" />
+</a> {% endcomment %}
+
+<svg xmlns="http://w3.org" viewBox="0 0 800 300" width="100%" height="100%">
+  <defs>
+    <!-- Left Loaf Gradient: Bakery Terracotta Tones -->
+    <linearGradient id="bakeryGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8E321F" />
+      <stop offset="100%" stop-color="#E26A45" />
+    </linearGradient>
+    
+    <!-- Right Loaf Gradient: High-Tech Teal Tones -->
+    <linearGradient id="techGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0A6872" />
+      <stop offset="100%" stop-color="#02B2C2" />
+    </linearGradient>
+  </defs>
+
+  <!-- LOGO ICON GROUP -->
+  <g transform="translate(50, 45)">
+    <!-- LEFT SIDE: Bakery Network Node -->
+    <g fill="none" stroke="url(#bakeryGrad)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Outer Loaf Left Contour -->
+      <path d="M100,205 L25,205 C15,205 10,195 10,185 C10,140 20,85 65,55 C100,32 120,45 120,65 L120,205" />
+      <!-- Internal Network Connections -->
+      <line x1="25" y1="205" x2="65" y2="135" />
+      <line x1="120" y1="65" x2="65" y2="135" />
+      <line x1="65" y1="55" x2="65" y2="135" />
+      <line x1="20" y1="120" x2="65" y2="135" />
+      <!-- Central Connection Bridge Left Point -->
+      <line x1="65" y1="135" x2="120" y2="135" />
+    </g>
+    <!-- Left Node Circles -->
+    <g fill="#8E321F">
+      <circle cx="25" cy="205" r="9" />
+      <circle cx="100" cy="205" r="9" />
+      <circle cx="65" cy="135" r="10" fill="#E26A45" />
+      <circle cx="20" cy="120" r="8" />
+      <circle cx="65" cy="55" r="8" />
+      <circle cx="120" cy="65" r="9" />
+    </g>
+
+    <!-- CENTER BRIDGE LINK -->
+    <line x1="120" y1="135" x2="150" y2="135" stroke="#0A6872" stroke-width="10" stroke-linecap="round" />
+
+    <!-- RIGHT SIDE: Tech Network Node -->
+    <g transform="translate(150, 0)" fill="none" stroke="url(#techGrad)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Outer Loaf Right Contour -->
+      <path d="M20,205 L95,205 C105,205 110,195 110,185 C110,140 100,85 55,55 C20,32 0,45 0,65 L0,205" />
+      <!-- Internal Network Connections -->
+      <line x1="95" y1="205" x2="45" y2="120" />
+      <line x1="0" y1="65" x2="45" y2="120" />
+      <line x1="55" y1="55" x2="45" y2="120" />
+      <line x1="100" y1="120" x2="45" y2="120" />
+      <!-- Central Connection Bridge Right Point -->
+      <line x1="0" y1="135" x2="45" y2="120" />
+    </g>
+    <!-- Right Node Circles -->
+    <g transform="translate(150, 0)" fill="#0A6872">
+      <circle cx="20" cy="205" r="9" />
+      <circle cx="95" cy="205" r="9" />
+      <circle cx="45" cy="120" r="10" fill="#02B2C2" />
+      <circle cx="100" cy="120" r="8" />
+      <circle cx="55" cy="55" r="8" />
+      <circle cx="0" cy="65" r="9" />
+    </g>
+  </g>
+
+  <!-- LOGO TYPOGRAPHY -->
+  <g transform="translate(350, 165)">
+    <!-- Primary Brand Name -->
+    <text font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="76" fill="#2C3E50" letter-spacing="-2">LOAF<tspan fill="url(#techGrad)" font-weight="700">LINK</tspan></text>
+    <!-- Modern Subtitle -->
+    <text font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="19" fill="#7F8C8D" letter-spacing="7" x="5" y="42">B2B BAKERY NETWORK</text>
+  </g>
+</svg>

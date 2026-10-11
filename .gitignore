@@ -1,0 +1,36 @@
+# ============ Python ============
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# ============ Virtual Environments ============
+env/
+.venv/
+venv/
+ENV/
+
+# ============ Django ============
+*.log
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/media/
+
+# ============ Environment ============
+.env
+.env.*
+!.env.example
+
+# ============ IDE / OS ============
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ============ Render ============
+.render/

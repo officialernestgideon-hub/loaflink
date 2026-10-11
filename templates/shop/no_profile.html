@@ -1,0 +1,15 @@
+{% extends 'shop/base_shop.html' %}
+{% block title %}Setup — LoafLink{% endblock %}
+
+{% block content %}
+<div class="shop-card">
+  <div class="shop-empty">
+    <i class="fa-solid fa-user-gear"></i>
+    <h3>Let's set up your shop</h3>
+    <p>Choose your bakery to start ordering bread.</p>
+    <a href="{% url 'shop:setup' %}" class="shop-btn shop-btn-primary">
+      <i class="fa-solid fa-arrow-right"></i> Start setup
+    </a>
+  </div>
+</div>
+{% endblock %}

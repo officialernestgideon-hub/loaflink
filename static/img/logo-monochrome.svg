@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 240" fill="none">
+<defs>
+  <linearGradient id="warm" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#A94722"/><stop offset="100%" stop-color="#F0782B"/></linearGradient>
+  <linearGradient id="cool" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#087783"/><stop offset="100%" stop-color="#16C5C6"/></linearGradient>
+  
+</defs>
+
+<g stroke-linecap="round" stroke-linejoin="round" fill="none">
+  <!-- Bakery half -->
+  <g stroke="#18232B" stroke-width="7">
+    <path d="M18 116 C5 105 8 82 25 65 C45 43 76 30 119 23 L119 209 L34 209 L34 116 C23 111 18 108 18 99"/>
+    <path d="M25 65 L57 84 L88 64 L119 23 M57 84 L67 120 L44 157 L34 209 M57 84 L91 108 L67 120 M67 120 L44 157 L90 180 L119 209 M44 157 L34 209 M90 180 L119 150 L119 209 M88 64 L91 108 M25 65 L44 157 M67 120 L119 150"/>
+  </g>
+  <!-- Retail / technology half -->
+  <g stroke="#18232B" stroke-width="7">
+    <path d="M241 23 C284 30 315 43 335 65 C352 82 355 105 342 116 C342 116 342 116 333 121 L333 209 L248 209 L248 23"/>
+    <path d="M248 23 L279 64 L311 84 L335 65 M279 64 L279 108 L311 84 M311 84 L329 120 L310 157 L333 209 M279 108 L310 157 L269 180 L248 209 M279 108 L248 150 L248 209 M310 157 L269 180 L248 150 M311 84 L310 157 M335 65 L310 157 M269 180 L333 209"/>
+  </g>
+  <!-- Central link -->
+  <path d="M109 128 L145 128 M215 128 L251 128" stroke="#18232B" stroke-width="7"/>
+  <path d="M109 128 L145 128" stroke="#18232B" stroke-width="7"/>
+  <circle cx="104" cy="128" r="8" fill="#fff" stroke="#18232B" stroke-width="6"/>
+  <circle cx="256" cy="128" r="8" fill="#fff" stroke="#18232B" stroke-width="6"/>
+  <!-- Nodes -->
+  <g fill="#18232B" stroke="none">
+    <circle cx="119" cy="23" r="9"/><circle cx="57" cy="84" r="8"/><circle cx="88" cy="64" r="8"/>
+    <circle cx="67" cy="120" r="8"/><circle cx="44" cy="157" r="8"/><circle cx="90" cy="180" r="8"/><circle cx="34" cy="209" r="9"/><circle cx="119" cy="209" r="9"/>
+  </g>
+  <g fill="#18232B" stroke="none">
+    <circle cx="241" cy="23" r="9"/><circle cx="279" cy="64" r="8"/><circle cx="311" cy="84" r="8"/>
+    <circle cx="279" cy="108" r="8"/><circle cx="310" cy="157" r="8"/><circle cx="269" cy="180" r="8"/><circle cx="248" cy="209" r="9"/><circle cx="333" cy="209" r="9"/>
+  </g>
+</g>
+
+</svg>

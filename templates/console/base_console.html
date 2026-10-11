@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{% block title %}Platform — LoafLink{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="{% static 'console/console.css' %}" />
+<link rel="stylesheet" href="{% static 'css/toasts.css' %}" />
+
+<link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}" />
+<link rel="alternate icon" href="{% static 'img/favicon.ico' %}" />
+<link rel="apple-touch-icon" href="{% static 'img/logo-icon.svg' %}" />
+</head>
+<body class="pf-body">
+
+<div class="pf-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="pf-sidebar">
+    <a href="{% url 'console:dashboard' %}" class="bakery-logo">
+      <img src="{% static 'img/logo-primary.svg' %}" alt="LoafLink" style="height: 28px; width: auto;" />
+    </a>
+
+    <div class="pf-sidebar-section">Platform</div>
+    <a href="{% url 'console:dashboard' %}" class="pf-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="fa-solid fa-chart-line"></i> Dashboard
+    </a>
+
+    <div class="pf-sidebar-section">Entities</div>
+    <a href="{% url 'console:bakeries' %}" class="pf-nav-link {% if request.resolver_match.url_name == 'bakeries' %}active{% endif %}">
+      <i class="fa-solid fa-industry"></i> Bakeries
+    </a>
+    <a href="{% url 'console:retailers' %}" class="pf-nav-link {% if request.resolver_match.url_name == 'retailers' %}active{% endif %}">
+      <i class="fa-solid fa-store"></i> Retailers
+    </a>
+
+    <div class="pf-sidebar-section">System</div>
+    <a href="{% url 'console:notifications' %}" class="pf-nav-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+      <i class="fa-solid fa-bell"></i> Notifications
+    </a>
+    <a href="/django-admin/" class="pf-nav-link" target="_blank" rel="noopener">
+      <i class="fa-solid fa-shield-halved"></i> Django Admin
+    </a>
+
+    <div class="pf-sidebar-foot">
+      <a href="{% url 'accounts:logout' %}" class="pf-nav-link" style="color: #fca5a5;">
+        <i class="fa-solid fa-right-from-bracket"></i> Log out
+      </a>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="pf-main">
+
+    <header class="pf-topbar">
+      <div>
+        <div class="pf-page-title">{% block page_title %}Dashboard{% endblock %}</div>
+        <div class="pf-page-sub">{% block page_sub %}{% endblock %}</div>
+      </div>
+      <div class="pf-topbar-right">
+        <div class="pf-user-chip">
+          <div class="avatar">{{ request.user.full_name|default:request.user.phone|slice:":1"|upper }}</div>
+          <div>
+            <div class="name">{{ request.user.full_name|default:request.user.phone }}</div>
+            <div class="role">Platform Admin</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ MOBILE NAV ============ -->
+    <nav class="pf-mobile-nav">
+      <div class="pf-mobile-nav-inner">
+        <a href="{% url 'console:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Home</span>
+        </a>
+        <a href="{% url 'console:bakeries' %}" class="{% if request.resolver_match.url_name == 'bakeries' %}active{% endif %}">
+          <i class="fa-solid fa-industry"></i>
+          <span>Bakeries</span>
+        </a>
+        <a href="{% url 'console:retailers' %}" class="{% if request.resolver_match.url_name == 'retailers' %}active{% endif %}">
+          <i class="fa-solid fa-store"></i>
+          <span>Retailers</span>
+        </a>
+        <a href="{% url 'console:notifications' %}" class="{% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+          <i class="fa-solid fa-bell"></i>
+          <span>Alerts</span>
+        </a>
+      </div>
+    </nav>
+
+    <main class="pf-content">
+      {% block content %}{% endblock %}
+    </main>
+
+  </div>
+</div>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

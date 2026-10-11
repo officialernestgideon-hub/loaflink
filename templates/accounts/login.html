@@ -1,0 +1,69 @@
+{% extends 'accounts/base_auth.html' %}
+{% block title %}Log in — LoafLink{% endblock %}
+
+{% block card %}
+
+<h1 class="auth-title">Welcome back</h1>
+<p class="auth-subtitle">Enter your phone number — we'll send a 6-digit code.</p>
+
+{% include 'partials/_toasts.html' %}
+
+<form method="post" novalidate id="loginForm">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="auth-error">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>{{ form.non_field_errors.0 }}</span>
+    </div>
+  {% endif %}
+
+  <div class="auth-form-group">
+    <label class="auth-label" for="{{ form.phone.id_for_label }}">Phone number</label>
+    <div class="auth-input-icon-wrap">
+      <i class="fa-solid fa-phone auth-input-icon"></i>
+      <input type="tel"
+             name="{{ form.phone.name }}"
+             id="{{ form.phone.id_for_label }}"
+             class="auth-input"
+             placeholder="+234 801 234 5678"
+             value="{{ form.phone.value|default:'' }}"
+             autocomplete="tel"
+             inputmode="tel"
+             autofocus
+             required />
+    </div>
+    {% if form.phone.errors %}
+      <div class="auth-error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ form.phone.errors.0 }}</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <button type="submit" class="auth-btn" id="submitBtn">
+    <span class="btn-label">Send code</span>
+    <i class="fa-solid fa-paper-plane btn-icon"></i>
+  </button>
+</form>
+
+<div class="auth-footer">
+  New to LoafLink? <a href="{% url 'accounts:register' %}">Create an account</a>
+</div>
+
+<script>
+  document.querySelectorAll('[data-format="phone"]').forEach(input => {
+    input.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/[^\d+]/g, '');
+    });
+  });
+
+  const form = document.getElementById('loginForm');
+  const btn = document.getElementById('submitBtn');
+  form.addEventListener('submit', () => {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Sending code…';
+  });
+</script>
+
+{% endblock %}

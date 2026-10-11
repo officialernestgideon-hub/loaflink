@@ -1,0 +1,323 @@
+{% extends 'console/base_console.html' %}
+{% load static %}
+{% block title %}Dashboard — LoafLink Platform{% endblock %}
+{% block page_title %}Platform Overview{% endblock %}
+{% block page_sub %}Live metrics across every bakery, retailer, and order{% endblock %}
+
+{% block content %}
+
+<!-- ============ STAT TILES ============ -->
+<div class="pf-stats">
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon purple"><i class="fa-solid fa-industry"></i></div>
+    <div class="pf-stat-value">{{ active_bakeries }}</div>
+    <div class="pf-stat-label">Active bakeries</div>
+  </div>
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon blue"><i class="fa-solid fa-store"></i></div>
+    <div class="pf-stat-value">{{ active_retailers }}</div>
+    <div class="pf-stat-label">Active retailers</div>
+    {% if pending_retailers %}
+      <div class="pf-stat-note">{{ pending_retailers }} awaiting approval</div>
+    {% endif %}
+  </div>
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon green"><i class="fa-solid fa-receipt"></i></div>
+    <div class="pf-stat-value">{{ orders_today }}</div>
+    <div class="pf-stat-label">Orders today</div>
+    {% if orders_yesterday %}
+      <div class="pf-stat-note">
+        {% if orders_today >= orders_yesterday %}
+          <i class="fa-solid fa-arrow-up" style="color:#10b981;"></i> vs {{ orders_yesterday }} yesterday
+        {% else %}
+          <i class="fa-solid fa-arrow-down" style="color:#ef4444;"></i> vs {{ orders_yesterday }} yesterday
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon amber"><i class="fa-solid fa-bread-slice"></i></div>
+    <div class="pf-stat-value">{{ loaves_today }}</div>
+    <div class="pf-stat-label">Loaves ordered today</div>
+  </div>
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon pink"><i class="fa-solid fa-naira-sign"></i></div>
+    <div class="pf-stat-value">₦{{ gmv_month|floatformat:0 }}</div>
+    <div class="pf-stat-label">GMV this month</div>
+  </div>
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon red"><i class="fa-solid fa-bell"></i></div>
+    <div class="pf-stat-value">{{ notifs_24h }}</div>
+    <div class="pf-stat-label">Notifications · 24h</div>
+  </div>
+
+</div>
+
+<!-- ============ CHARTS ROW 1 ============ -->
+<div class="pf-grid-2">
+
+  <div class="pf-card">
+    <div class="pf-card-head">
+      <div class="pf-card-title">Orders per day · last 14 days</div>
+    </div>
+    <div class="pf-chart-wrap">
+      <canvas id="ordersChart" height="180"></canvas>
+    </div>
+  </div>
+
+  <div class="pf-card">
+    <div class="pf-card-head">
+      <div class="pf-card-title">Loaves ordered · last 14 days</div>
+    </div>
+    <div class="pf-chart-wrap">
+      <canvas id="loavesChart" height="180"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ CHARTS ROW 2 ============ -->
+<div class="pf-grid-2">
+
+  <div class="pf-card">
+    <div class="pf-card-head">
+      <div class="pf-card-title">GMV per day · last 14 days</div>
+    </div>
+    <div class="pf-chart-wrap">
+      <canvas id="gmvChart" height="180"></canvas>
+    </div>
+  </div>
+
+  <div class="pf-card">
+    <div class="pf-card-head">
+      <div class="pf-card-title">New signups · last 14 days</div>
+    </div>
+    <div class="pf-chart-wrap">
+      <canvas id="signupsChart" height="180"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ RECENT ACTIVITY ============ -->
+<div class="pf-grid-2">
+
+  <div class="pf-card">
+    <div class="pf-card-head">
+      <div class="pf-card-title">Latest orders</div>
+      <a href="{% url 'console:bakeries' %}" class="pf-link">View all →</a>
+    </div>
+    {% if recent_orders %}
+      {% for o in recent_orders %}
+      <div class="pf-row">
+        <div>
+          <div class="pf-row-strong">{{ o.retailer.name }}</div>
+          <div class="pf-row-meta">{{ o.bakery.name }} · {{ o.placed_at|date:"g:i A, d M" }}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="pf-row-strong">₦{{ o.total_amount }}</div>
+          <div class="pf-row-meta">{{ o.get_status_display }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="pf-empty">No orders yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="pf-card">
+    <div class="pf-card-head">
+      <div class="pf-card-title">Newest retailers</div>
+      <a href="{% url 'console:retailers' %}" class="pf-link">View all →</a>
+    </div>
+    {% if recent_retailers %}
+      {% for r in recent_retailers %}
+      <div class="pf-row">
+        <div>
+          <div class="pf-row-strong">{{ r.name }}</div>
+          <div class="pf-row-meta">{{ r.bakery.name }} · {{ r.created_at|date:"d M" }}</div>
+        </div>
+        <div>
+          {% if r.is_active %}
+            <span class="pf-pill success">Active</span>
+          {% else %}
+            <span class="pf-pill pending">Pending</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="pf-empty">No retailers yet.</div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ============ NOTIFICATIONS PREVIEW ============ -->
+<div class="pf-card">
+  <div class="pf-card-head">
+    <div class="pf-card-title">Recent notifications</div>
+    <a href="{% url 'console:notifications' %}" class="pf-link">View all →</a>
+  </div>
+  {% if recent_notifications %}
+    {% for n in recent_notifications %}
+    <div class="pf-row">
+      <div>
+        <div class="pf-row-strong">
+          {{ n.get_channel_display }} → {{ n.recipient }}
+        </div>
+        <div class="pf-row-meta">{{ n.message|truncatechars:60 }}</div>
+      </div>
+      <div>
+        <div class="pf-row-meta">{{ n.created_at|date:"g:i A" }}</div>
+        <span class="pf-pill {% if n.status == 'sent' %}success{% elif n.status == 'failed' %}danger{% else %}neutral{% endif %}">
+          {{ n.get_status_display }}
+        </span>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="pf-empty">No notifications sent yet.</div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const ordersData = {{ orders_chart|safe }};
+const loavesData = {{ loaves_chart|safe }};
+const gmvData = {{ gmv_chart|safe }};
+const signupsData = {{ signups_chart|safe }};
+
+const purple = '#7c3aed';
+const purpleLight = 'rgba(124, 58, 237, 0.15)';
+const pink = '#ec4899';
+const green = '#10b981';
+const amber = '#f59e0b';
+const blue = '#0ea5e9';
+
+function baseOptions(prefix='') {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0f0a1e',
+        titleFont: { family: 'Plus Jakarta Sans', weight: '700' },
+        bodyFont: { family: 'Inter' },
+        padding: 10,
+        cornerRadius: 8,
+        callbacks: prefix ? {
+          label: (ctx) => prefix + ctx.parsed.y
+        } : undefined,
+      },
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: {
+          color: '#a1a1aa',
+          font: { family: 'Inter', size: 11 },
+          maxRotation: 0,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: {
+          color: '#a1a1aa',
+          font: { family: 'Inter', size: 11 },
+          precision: 0,
+        },
+      },
+    },
+  };
+}
+
+function lineChart(id, data, key, color, fill, prefix='') {
+  const ctx = document.getElementById(id).getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+  gradient.addColorStop(0, fill);
+  gradient.addColorStop(1, 'rgba(255,255,255,0)');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.label),
+      datasets: [{
+        data: data.map(d => d[key]),
+        borderColor: color,
+        backgroundColor: gradient,
+        fill: true,
+        tension: 0.35,
+        borderWidth: 2.5,
+        pointBackgroundColor: color,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+      }],
+    },
+    options: baseOptions(prefix),
+  });
+}
+
+lineChart('ordersChart', ordersData, 'value', purple, purpleLight);
+lineChart('loavesChart', loavesData, 'value', amber, 'rgba(245, 158, 11, 0.15)');
+lineChart('gmvChart', gmvData, 'value', green, 'rgba(16, 185, 129, 0.15)', '₦');
+
+// Bar chart for signups
+(function() {
+  const ctx = document.getElementById('signupsChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: signupsData.map(d => d.label),
+      datasets: [
+        {
+          label: 'Bakeries',
+          data: signupsData.map(d => d.bakeries),
+          backgroundColor: purple,
+          borderRadius: 4,
+          maxBarThickness: 14,
+        },
+        {
+          label: 'Retailers',
+          data: signupsData.map(d => d.retailers),
+          backgroundColor: pink,
+          borderRadius: 4,
+          maxBarThickness: 14,
+        },
+      ],
+    },
+    options: {
+      ...baseOptions(),
+      plugins: {
+        ...baseOptions().plugins,
+        legend: {
+          display: true,
+          position: 'top',
+          align: 'end',
+          labels: {
+            boxWidth: 10,
+            boxHeight: 10,
+            usePointStyle: true,
+            font: { family: 'Inter', size: 11 },
+            color: '#6b6a82',
+          },
+        },
+      },
+    },
+  });
+})();
+</script>
+{% endblock %}

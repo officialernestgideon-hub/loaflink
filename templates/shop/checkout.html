@@ -1,0 +1,59 @@
+{% extends 'shop/base_shop.html' %}
+{% block title %}Checkout — LoafLink{% endblock %}
+
+{% block content %}
+
+<div class="shop-page-head">
+  <h1>Confirm your order</h1>
+  <p>Delivering to <strong>{{ retailer.name }}</strong> on <strong>{{ delivery_date|date:"D, d M" }}</strong></p>
+</div>
+
+<div class="shop-card">
+  <h3 style="font-size:1rem; margin-bottom:14px;">Order summary</h3>
+  {% for line in cart_lines %}
+  <div class="shop-cart-line">
+    <div>
+      <div class="shop-cart-line-name">{{ line.product.name }}</div>
+      <div class="shop-cart-line-meta">{{ line.quantity }} × ₦{{ line.unit_price }}</div>
+    </div>
+    <div class="shop-cart-line-total">₦{{ line.subtotal }}</div>
+  </div>
+  {% endfor %}
+
+  <div class="shop-cart-total-row" style="margin-top:14px;">
+    <span>Total loaves</span>
+    <span>{{ cart_count }}</span>
+  </div>
+  <div class="shop-cart-total-row grand">
+    <span>Total</span>
+    <span>₦{{ cart_total }}</span>
+  </div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+
+  <div class="shop-card">
+    <label for="notes" class="shop-label">Notes for the bakery (optional)</label>
+    <textarea name="notes" id="notes" class="shop-textarea" maxlength="300"
+      placeholder="e.g. Please deliver before 7am, or leave with security."></textarea>
+  </div>
+
+  <div class="shop-cutoff open" style="margin-bottom: 16px;">
+    <div class="shop-cutoff-icon"><i class="fa-solid fa-clock"></i></div>
+    <div class="shop-cutoff-text">
+      <strong>Cutoff at {{ cutoff_dt|time:"g:i A" }}</strong>
+      <span>Once the cutoff passes, your order is locked and goes to production.</span>
+    </div>
+  </div>
+
+  <button type="submit" class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg">
+    <i class="fa-solid fa-check"></i> Place order · ₦{{ cart_total }}
+  </button>
+</form>
+
+<a href="{% url 'shop:cart' %}" class="shop-btn shop-btn-ghost shop-btn-block" style="margin-top: 12px;">
+  ← Back to cart
+</a>
+
+{% endblock %}

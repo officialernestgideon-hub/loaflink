@@ -1,0 +1,85 @@
+{% extends 'shop/base_shop.html' %}
+{% block title %}Catalog — LoafLink{% endblock %}
+
+{% block content %}
+
+<div class="shop-page-head">
+  <h1>Bread catalog</h1>
+  <p>Order for <strong>{{ delivery_date|date:"D, d M" }}</strong> · Cutoff at 8:00 PM</p>
+</div>
+
+{% if not can_order %}
+<div class="shop-cutoff closed">
+  <div class="shop-cutoff-icon"><i class="fa-solid fa-lock"></i></div>
+  <div class="shop-cutoff-text">
+    <strong>Ordering is closed</strong>
+    <span>You can browse, but can't place an order until tomorrow morning.</span>
+  </div>
+</div>
+{% endif %}
+
+{% if products %}
+<div class="shop-grid">
+  {% for p in products %}
+  <div class="shop-product">
+    <div class="shop-product-head">
+      <div class="shop-product-icon"><i class="fa-solid fa-bread-slice"></i></div>
+    </div>
+    <div class="shop-product-name">{{ p.name }}</div>
+    <div class="shop-product-desc">{{ p.description|default:"Fresh from the bakery" }}</div>
+    <div class="shop-product-price">
+      ₦{{ p.price }}<small>per {{ p.unit }}</small>
+    </div>
+
+    <form method="post" action="{% url 'shop:cart_add' p.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% url 'shop:catalog' %}" />
+
+      <div class="shop-qty">
+        <button type="button" class="shop-qty-btn" onclick="decrementQty(this)">−</button>
+        <input type="number" name="quantity" class="shop-qty-input" value="{% if cart_quantities %}{{ cart_quantities|default_if_none:'' }}{% endif %}" min="1" step="1" placeholder="1" />
+        <button type="button" class="shop-qty-btn" onclick="incrementQty(this)">+</button>
+      </div>
+
+      <button type="submit" class="shop-btn shop-btn-primary shop-btn-block" {% if not can_order %}disabled{% endif %}>
+        <i class="fa-solid fa-plus"></i> Add to order
+      </button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="shop-card">
+  <div class="shop-empty">
+    <i class="fa-solid fa-bread-slice"></i>
+    <h3>No products yet</h3>
+    <p>Your bakery hasn't added any products to the catalog.</p>
+  </div>
+</div>
+{% endif %}
+
+<!-- STICKY CART BAR -->
+{% if cart_count %}
+<div style="position: fixed; bottom: 70px; left: 16px; right: 16px; max-width: 480px; margin: 0 auto; z-index: 40;">
+  <a href="{% url 'shop:cart' %}" class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg"
+     style="justify-content: space-between;">
+    <span><i class="fa-solid fa-basket-shopping"></i> {{ cart_count }} item{{ cart_count|pluralize }}</span>
+    <span>₦{{ cart_total }} →</span>
+  </a>
+</div>
+{% endif %}
+
+<script>
+function incrementQty(btn) {
+  const input = btn.parentElement.querySelector('input');
+  input.value = (parseInt(input.value) || 0) + 1;
+}
+function decrementQty(btn) {
+  const input = btn.parentElement.querySelector('input');
+  const v = (parseInt(input.value) || 1) - 1;
+  input.value = v < 1 ? 1 : v;
+}
+</script>
+
+{% endblock %}

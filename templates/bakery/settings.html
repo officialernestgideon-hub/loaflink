@@ -1,0 +1,81 @@
+{% extends 'bakery/base_bakery.html' %}
+{% block title %}Settings — LoafLink Bakery{% endblock %}
+{% block page_title %}Bakery Settings{% endblock %}
+{% block page_sub %}Manage your bakery details and order cutoff{% endblock %}
+
+{% block content %}
+
+<div style="max-width: 640px;">
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="bk-error">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+
+    <!-- BAKERY INFO -->
+    <div class="bk-card">
+      <div class="bk-card-title" style="margin-bottom:16px;">Bakery information</div>
+
+      <div class="bk-form-group">
+        <label class="bk-label" for="{{ form.name.id_for_label }}">Bakery name</label>
+        {{ form.name }}
+        {% if form.name.errors %}<div class="bk-error">{{ form.name.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="bk-form-group">
+        <label class="bk-label" for="{{ form.phone.id_for_label }}">Contact phone</label>
+        {{ form.phone }}
+        {% if form.phone.errors %}<div class="bk-error">{{ form.phone.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="bk-form-group">
+        <label class="bk-label" for="{{ form.state.id_for_label }}">State</label>
+        {{ form.state }}
+        {% if form.state.errors %}<div class="bk-error">{{ form.state.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="bk-form-group">
+        <label class="bk-label" for="{{ form.address.id_for_label }}">Address</label>
+        {{ form.address }}
+        {% if form.address.errors %}<div class="bk-error">{{ form.address.errors.0 }}</div>{% endif %}
+      </div>
+    </div>
+
+    <!-- ORDER CUTOFF -->
+    <div class="bk-card">
+      <div class="bk-card-title" style="margin-bottom:16px;">Order cutoff</div>
+
+      <div class="bk-form-group">
+        <label class="bk-label" for="{{ form.cutoff_time.id_for_label }}">Daily cutoff time</label>
+        {{ form.cutoff_time }}
+        <div class="bk-help">
+          Retailers must place tomorrow's order before this time. Default: 8:00 PM.
+        </div>
+        {% if form.cutoff_time.errors %}<div class="bk-error">{{ form.cutoff_time.errors.0 }}</div>{% endif %}
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="bk-card">
+      <div class="bk-card-title" style="margin-bottom:16px;">Availability</div>
+
+      <div class="bk-form-group">
+        <label style="display:flex; align-items:center; gap:10px; font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; font-size:0.9rem; cursor:pointer;">
+          {{ form.is_active }}
+          <span>Accepting new orders</span>
+        </label>
+        <div class="bk-help">Uncheck to temporarily stop receiving orders from retailers.</div>
+      </div>
+    </div>
+
+    <button type="submit" class="bk-btn bk-btn-primary">
+      <i class="fa-solid fa-check"></i> Save changes
+    </button>
+
+  </form>
+
+</div>
+
+{% endblock %}
