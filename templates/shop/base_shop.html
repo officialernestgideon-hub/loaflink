@@ -24,16 +24,20 @@
     <a href="{% url 'shop:home' %}" class="shop-logo">
       <img src="{% static 'img/logo-primary.svg' %}" alt="LoafLink" style="height: 32px; width: auto;" />
     </a>
-    
+
     <div class="shop-topbar-actions">
+      {% if wallet_balance is not None %}
+      <a href="{% url 'payments:wallet' %}" class="shop-cart-btn" style="background: #f3e8ff; color: #5b2e91;">
+        <i class="fa-solid fa-wallet"></i>
+        ₦{{ wallet_balance }}
+      </a>
+      {% endif %}
+
       {% if cart_count %}
       <a href="{% url 'shop:cart' %}" class="shop-cart-btn">
         <i class="fa-solid fa-basket-shopping"></i>
         Cart
         <span class="shop-cart-badge">{{ cart_count }}</span>
-      </a>
-      <a href="{% url 'accounts:logout' %}" class="shop-cart-btn">
-        logout
       </a>
       {% else %}
       <a href="{% url 'shop:cart' %}" class="shop-cart-btn">
@@ -72,6 +76,10 @@
     <a href="{% url 'shop:orders' %}" class="{% if request.resolver_match.url_name == 'orders' %}active{% endif %}">
       <i class="fa-solid fa-receipt"></i>
       <span>Orders</span>
+    </a>
+    <a href="{% url 'payments:wallet' %}" class="{% if 'wallet' in request.path %}active{% endif %}">
+      <i class="fa-solid fa-wallet"></i>
+      <span>Wallet</span>
     </a>
 
     {% comment %} <a href="{% url 'accounts:logout' %}">

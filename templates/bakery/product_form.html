@@ -11,7 +11,7 @@
     <div class="bk-error">{{ form.non_field_errors.0 }}</div>
   {% endif %}
 
-  <form method="post">
+  <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
     <div class="bk-card">
@@ -40,6 +40,36 @@
           {{ form.unit }}
           {% if form.unit.errors %}<div class="bk-error">{{ form.unit.errors.0 }}</div>{% endif %}
         </div>
+      </div>
+
+      <!-- ============ PRODUCT PHOTO ============ -->
+      <div class="bk-form-group">
+        <label class="bk-label" for="{{ form.image.id_for_label }}">Product photo</label>
+
+        <!-- Existing image preview (edit mode only) -->
+        {% if is_edit and product.image %}
+          <div class="bk-image-preview">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+            <div class="bk-image-preview-label">Current photo</div>
+          </div>
+        {% endif %}
+
+        <!-- Upload area -->
+        <label for="{{ form.image.id_for_label }}" class="bk-file-drop">
+          <div class="bk-file-drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div class="bk-file-drop-text">
+            <strong>Tap to upload</strong>
+            <span>or drag a photo here</span>
+          </div>
+          {{ form.image }}
+        </label>
+
+        {% if form.image.help_text %}
+          <div class="bk-help">{{ form.image.help_text }}</div>
+        {% endif %}
+        {% if form.image.errors %}
+          <div class="bk-error">{{ form.image.errors.0 }}</div>
+        {% endif %}
       </div>
 
       <div class="bk-form-group">

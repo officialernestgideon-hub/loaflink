@@ -37,6 +37,15 @@ def can_order_now(retailer):
     cutoff_dt = get_cutoff_datetime(retailer, next_delivery_date())
     return timezone.now() < cutoff_dt
 
+def wallet_context(user):
+    """Return common wallet context for shop views."""
+    from payments.services import get_wallet
+    retailer = getattr(user, 'retailer', None)
+    if not retailer:
+        return {}
+    wallet = get_wallet(retailer)
+    return {'wallet_balance': wallet.balance}
+
 
 # ============================================================
 # HOME
@@ -73,6 +82,7 @@ def home(request):
         'recent_orders': recent_orders,
         'cart_count': len(cart),
         'can_order': can_order_now(retailer),
+        **wallet_context(request.user),
     })
     
 # ============================================================
@@ -150,6 +160,7 @@ def catalog(request):
         'cart_total': cart.total(),
         'can_order': can_order_now(retailer),
         'delivery_date': next_delivery_date(),
+        **wallet_context(request.user),
     })
 
 
@@ -203,6 +214,7 @@ def cart_view(request):
         'cart_count': len(cart),
         'can_order': can_order_now(retailer),
         'delivery_date': next_delivery_date(),
+        **wallet_context(request.user),
     })
 
 
@@ -244,7 +256,21 @@ def checkout(request):
         messages.error(request, "You already placed an order for tomorrow.")
         return redirect('shop:orders')
 
+        # Balance check happens before we even show the checkout page
+    from payments.services import get_wallet, debit_wallet
+    wallet = get_wallet(retailer)
+    cart_total = cart.total()
+
     if request.method == 'POST':
+        # Re-check balance right before committing
+        if not wallet.has_enough_for(cart_total):
+            messages.error(
+                request,
+                f"Insufficient balance. Your wallet has ₦{wallet.balance}, "
+                f"but this order costs ₦{cart_total}. Please top up first."
+            )
+            return redirect('payments:wallet')
+
         notes = request.POST.get('notes', '').strip()[:300]
 
         with transaction.atomic():
@@ -266,15 +292,23 @@ def checkout(request):
 
             order.recalculate_total()
 
+            # Debit the wallet — atomic with order creation
+            debit_wallet(
+                retailer=retailer,
+                amount=order.total_amount,
+                reason=f'Order #{order.id}',
+                reference=f'order-{order.id}',
+                created_by=request.user,
+            )
+
         cart.clear()
-        
-        # Notify the bakery of the new order
+
         from notifications.services import notify_new_order
         notify_new_order(order)
-        
+
         messages.success(request, f"Order #{order.id} placed for {delivery_date.strftime('%a, %d %b')}.")
         return redirect('shop:order_detail', order_id=order.id)
-
+    
     return render(request, 'shop/checkout.html', {
         'retailer': retailer,
         'cart_lines': list(cart),
@@ -282,6 +316,8 @@ def checkout(request):
         'cart_count': len(cart),
         'delivery_date': delivery_date,
         'cutoff_dt': cutoff_dt,
+        'wallet': wallet,
+        'has_enough': wallet.has_enough_for(cart_total),
     })
 
 
@@ -299,6 +335,7 @@ def orders(request):
         'retailer': retailer,
         'orders': qs,
         'cart_count': len(Cart(request)),
+        **wallet_context(request.user),
     })
 
 
@@ -319,6 +356,44 @@ def order_detail(request, order_id):
         'order': order,
         'cart_count': len(Cart(request)),
         'can_reorder': can_order_now(retailer) and order.delivery_date < next_delivery_date(),
+        **wallet_context(request.user),
+    })
+    
+# ============================================================
+# PRODUCT DETAIL
+# ============================================================
+@role_required('retailer')
+def product_detail(request, slug):
+    retailer = get_retailer_or_none(request.user)
+    if not retailer or not retailer.is_active:
+        return redirect('shop:home')
+
+    product = get_object_or_404(
+        Product,
+        bakery=retailer.bakery,
+        slug=slug,
+        is_available=True,
+    )
+
+    cart = Cart(request)
+    in_cart_qty = cart.cart.get(str(product.id), 0)
+
+    # Related products (others from same bakery)
+    related = Product.objects.filter(
+        bakery=retailer.bakery,
+        is_available=True,
+    ).exclude(id=product.id)[:4]
+
+    return render(request, 'shop/product_detail.html', {
+        'retailer': retailer,
+        'bakery': retailer.bakery,
+        'product': product,
+        'related': related,
+        'in_cart_qty': in_cart_qty,
+        'cart_count': len(cart),
+        'cart_total': cart.total(),
+        'can_order': can_order_now(retailer),
+        'delivery_date': next_delivery_date(),
     })
 
 

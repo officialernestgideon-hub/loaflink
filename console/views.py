@@ -5,8 +5,9 @@ from datetime import timedelta
 
 from orders.models import Bakery, Retailer, Product, Order, OrderItem
 from notifications.models import NotificationLog
-# from payments.models import Wallet
+from payments.models import Wallet
 from .decorators import admin_required
+from analytics.utils import dashboard_stats
 
 
 def _stats():
@@ -94,8 +95,9 @@ def _stats():
             'label': day.strftime('%d %b'),
             'value': float(amt),
         })
-
-    return {
+    
+    
+    stats = {
         'active_bakeries': active_bakeries,
         'active_retailers': active_retailers,
         'pending_retailers': pending_retailers,
@@ -108,8 +110,19 @@ def _stats():
         'orders_chart': orders_chart,
         'loaves_chart': loaves_chart,
         'signups_chart': signups_chart,
+        
         'gmv_chart': gmv_chart,
     }
+    # ---- Visitor analytics ----
+    stats.update(dashboard_stats(days=14))
+
+    return stats
+
+@admin_required
+def visitors(request):
+    from analytics.utils import dashboard_stats
+    context = dashboard_stats(days=30)
+    return render(request, 'console/visitors.html', context)
 
 
 @admin_required

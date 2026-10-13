@@ -1,0 +1,55 @@
+{% extends 'bakery/base_bakery.html' %}
+{% block title %}More — LoafLink Bakery{% endblock %}
+{% block page_title %}More{% endblock %}
+{% block page_sub %}All bakery tools{% endblock %}
+
+{% block content %}
+
+<div class="bk-card">
+  <a href="{% url 'bakery:products_list' %}" class="bk-more-item">
+    <div class="bk-more-icon purple"><i class="fa-solid fa-bread-slice"></i></div>
+    <div>
+      <div class="bk-more-title">Products</div>
+      <div class="bk-more-desc">Manage your bread catalogue</div>
+    </div>
+    <i class="fa-solid fa-chevron-right"></i>
+  </a>
+
+  <a href="{% url 'bakery:retailers_list' %}" class="bk-more-item">
+    <div class="bk-more-icon blue"><i class="fa-solid fa-store"></i></div>
+    <div>
+      <div class="bk-more-title">Retailers</div>
+      <div class="bk-more-desc">Approve and manage retail shops</div>
+    </div>
+    <i class="fa-solid fa-chevron-right"></i>
+  </a>
+
+  <a href="{% url 'bakery:deliveries' %}" class="bk-more-item">
+    <div class="bk-more-icon amber"><i class="fa-solid fa-truck-fast"></i></div>
+    <div>
+      <div class="bk-more-title">Deliveries</div>
+      <div class="bk-more-desc">Daily delivery manifest</div>
+    </div>
+    <i class="fa-solid fa-chevron-right"></i>
+  </a>
+
+  <a href="{% url 'bakery:settings_view' %}" class="bk-more-item">
+    <div class="bk-more-icon green"><i class="fa-solid fa-gear"></i></div>
+    <div>
+      <div class="bk-more-title">Settings</div>
+      <div class="bk-more-desc">Bakery details and cutoff time</div>
+    </div>
+    <i class="fa-solid fa-chevron-right"></i>
+  </a>
+
+  <a href="{% url 'accounts:logout' %}" class="bk-more-item" style="border-bottom: none;">
+    <div class="bk-more-icon red"><i class="fa-solid fa-right-from-bracket"></i></div>
+    <div>
+      <div class="bk-more-title">Log out</div>
+      <div class="bk-more-desc">Sign out of your bakery</div>
+    </div>
+    <i class="fa-solid fa-chevron-right"></i>
+  </a>
+</div>
+
+{% endblock %}

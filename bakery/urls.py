@@ -18,7 +18,9 @@ urlpatterns = [
     path('retailers/', views.retailers_list, name='retailers_list'),
     path('retailers/<slug:slug>/', views.retailer_detail, name='retailer_detail'),
     path('retailers/<slug:slug>/toggle/', views.retailer_toggle, name='retailer_toggle'),
+    path('retailers/<slug:slug>/topup/', views.retailer_topup, name='retailer_topup'),
 
     path('deliveries/', views.deliveries, name='deliveries'),
     path('settings/', views.settings_view, name='settings_view'),
+    path('more/', views.more_menu, name='more'),
 ]

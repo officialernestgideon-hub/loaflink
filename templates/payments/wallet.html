@@ -1,0 +1,94 @@
+{% extends 'shop/base_shop.html' %}
+{% block title %}My Wallet — LoafLink{% endblock %}
+
+{% block content %}
+
+<div class="shop-page-head">
+  <h1>My Wallet</h1>
+  <p>Your balance with {{ retailer.bakery.name }}. Every order is automatically deducted.</p>
+</div>
+
+<!-- BALANCE CARD -->
+<div class="shop-card" style="background: linear-gradient(135deg, #7c3aed, #ec4899); border: none; color: white;">
+  <div style="font-size: 0.85rem; opacity: 0.85; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">
+    Available balance
+  </div>
+  <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 2.6rem; line-height: 1.1; margin: 8px 0;">
+    ₦{{ wallet.balance }}
+  </div>
+  <div style="font-size: 0.85rem; opacity: 0.85;">
+    Last updated {{ wallet.updated_at|date:"d M Y, g:i A" }}
+  </div>
+</div>
+
+<!-- HOW PAYMENTS WORK -->
+<div class="shop-card" style="background: var(--shop-purple-soft); border-color: #d8b4fe;">
+  <div style="display:flex; gap:12px; align-items:flex-start;">
+    <i class="fa-solid fa-circle-info" style="color: var(--shop-purple-dark); margin-top:2px;"></i>
+    <div>
+      <strong style="font-family:'Plus Jakarta Sans',sans-serif; color: var(--shop-purple-dark); display:block; margin-bottom:8px;">
+        How your balance works
+      </strong>
+      <span style="font-size:0.88rem; color: var(--shop-purple-dark); opacity:0.9; line-height:1.6; display:block;">
+        Pay your bakery by <strong>cash</strong>, <strong>transfer</strong>, or <strong>POS</strong>.
+        Once they record your payment in LoafLink, your balance updates here instantly
+        and you can place orders right away.
+      </span>
+      <span style="font-size:0.82rem; color: var(--shop-purple-dark); opacity:0.75; display:block; margin-top:10px;">
+        Questions? Contact <strong>{{ retailer.bakery.name }}</strong> at {{ retailer.bakery.phone }}.
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- LEDGER -->
+<div class="shop-card">
+  <div class="shop-card-head">
+    <div class="shop-card-title" style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1rem;">
+      Transaction history
+    </div>
+    <div style="font-size:0.85rem; color: var(--shop-ink-faint);">
+      {{ transactions|length }} transaction{{ transactions|length|pluralize }}
+    </div>
+  </div>
+
+  {% if transactions %}
+    {% for tx in transactions %}
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--shop-border);">
+      <div style="display:flex; gap:12px; align-items:center;">
+        <div style="width:36px; height:36px; border-radius:10px; display:grid; place-items:center;
+          {% if tx.type == 'debit' %}background: var(--shop-red-soft); color: #991b1b;
+          {% else %}background: var(--shop-green-soft); color: #065f46;{% endif %}">
+          <i class="fa-solid {% if tx.type == 'debit' %}fa-arrow-down{% else %}fa-arrow-up{% endif %}"></i>
+        </div>
+        <div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:0.92rem;">
+            {{ tx.reason|default:tx.get_type_display }}
+          </div>
+          <div style="font-size:0.78rem; color: var(--shop-ink-faint); margin-top:2px;">
+            {{ tx.created_at|date:"d M Y, g:i A" }}
+            {% if tx.reference %} · {{ tx.reference }}{% endif %}
+          </div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1rem;
+          {% if tx.type == 'debit' %}color: #991b1b;{% else %}color: #065f46;{% endif %}">
+          {% if tx.type == 'debit' %}−{% else %}+{% endif %}₦{{ tx.amount }}
+        </div>
+        <div style="font-size:0.75rem; color: var(--shop-ink-faint); margin-top:2px;">
+          bal ₦{{ tx.balance_after }}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="shop-empty" style="padding: 32px 12px;">
+      <i class="fa-solid fa-receipt"></i>
+      <h3 style="font-size:1rem;">No transactions yet</h3>
+      <p style="font-size:0.88rem;">Your activity will appear here once you top up.</p>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

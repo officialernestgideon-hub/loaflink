@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin as django_admin
 from django.urls import include, path
+from django.conf import settings
+from django.conf.urls.static import static
 
 django_admin.site.site_header = 'LoafLink Admin'
 django_admin.site.site_title = 'LoafLink'
@@ -27,5 +29,8 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('shop/', include("shop.urls")),
     path('bakery/', include("bakery.urls")),
+    path('payments/', include('payments.urls')),
     path('', include("breadlink.urls")),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -20,13 +20,22 @@
 
 {% if products %}
 <div class="shop-grid">
-  {% for p in products %}
+    {% for p in products %}
   <div class="shop-product">
-    <div class="shop-product-head">
-      <div class="shop-product-icon"><i class="fa-solid fa-bread-slice"></i></div>
-    </div>
-    <div class="shop-product-name">{{ p.name }}</div>
-    <div class="shop-product-desc">{{ p.description|default:"Fresh from the bakery" }}</div>
+    <!-- Clickable image + name -->
+    <a href="{% url 'shop:product_detail' p.slug %}" class="shop-product-link">
+      <div class="shop-product-image">
+        {% if p.image %}
+          <img src="{{ p.image.url }}" alt="{{ p.name }}" />
+        {% else %}
+          <div class="shop-product-icon"><i class="fa-solid fa-bread-slice"></i></div>
+        {% endif %}
+      </div>
+      <div class="shop-product-name">{{ p.name }}</div>
+      <div class="shop-product-desc">{{ p.description|truncatewords:20|default:"Fresh from the bakery" }}</div>
+    </a>
+
+    <!-- Price + add form (not part of the link) -->
     <div class="shop-product-price">
       ₦{{ p.price }}<small>per {{ p.unit }}</small>
     </div>

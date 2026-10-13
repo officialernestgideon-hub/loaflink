@@ -158,6 +158,20 @@
   margin-bottom: 16px;
 }
 
+.shop-product-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--shop-surface-2);
+  margin-bottom: 14px;
+}
+.shop-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* ============ STATUS PILLS ============ */
 .shop-pill {
   display: inline-flex;
@@ -506,7 +520,7 @@
   max-width: 480px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
 }
 .shop-bottom-nav a {
   display: flex;
@@ -771,6 +785,72 @@
   .shop-setup-logo { font-size: 1.15rem; margin-bottom: 22px; }
   .shop-setup-logo-mark { width: 34px; height: 34px; font-size: 0.9rem; }
   .shop-setup-header { margin-bottom: 24px; }
+}
+
+/* ============ PRODUCT IMAGE / HERO ============ */
+.shop-product-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--shop-surface-2);
+  margin-bottom: 14px;
+  display: grid;
+  place-items: center;
+}
+.shop-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.shop-product-image .shop-product-icon {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: var(--shop-purple-soft);
+  color: var(--shop-purple-dark);
+  font-size: 2rem;
+}
+
+/* Clickable wrapper — no underline, no color change */
+.shop-product-link {
+  display: block;
+  text-decoration: none !important;
+  color: inherit;
+  cursor: pointer;
+}
+.shop-product-link:hover .shop-product-name {
+  color: var(--shop-purple);
+}
+.shop-product-name {
+  transition: color 0.15s ease;
+}
+
+/* ============ PRODUCT DETAIL HERO ============ */
+.shop-product-hero {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--shop-radius-lg);
+  overflow: hidden;
+  background: var(--shop-surface-2);
+  display: grid;
+  place-items: center;
+}
+.shop-product-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.shop-product-hero-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--shop-purple-soft);
+  color: var(--shop-purple-dark);
+  display: grid;
+  place-items: center;
+  font-size: 3.5rem;
 }
 
 

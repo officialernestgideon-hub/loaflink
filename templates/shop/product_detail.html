@@ -1,0 +1,116 @@
+{% extends 'shop/base_shop.html' %}
+{% block title %}{{ product.name }} — LoafLink{% endblock %}
+
+{% block content %}
+
+<a href="{% url 'shop:catalog' %}" class="shop-btn shop-btn-ghost" style="margin-bottom: 12px; padding: 6px 12px;">
+  <i class="fa-solid fa-arrow-left"></i> Back to catalog
+</a>
+
+<!-- PRODUCT IMAGE -->
+<div class="shop-product-hero">
+  {% if product.image %}
+    <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+  {% else %}
+    <div class="shop-product-hero-placeholder">
+      <i class="fa-solid fa-bread-slice"></i>
+    </div>
+  {% endif %}
+</div>
+
+<!-- PRODUCT INFO -->
+<div class="shop-page-head" style="margin-top: 20px;">
+  <h1>{{ product.name }}</h1>
+  {% if product.description %}
+    <p>{{ product.description }}</p>
+  {% endif %}
+</div>
+
+<!-- PRICE + ORDER CARD -->
+<div class="shop-card">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+    <div>
+      <div style="font-size:0.78rem; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color: var(--shop-ink-faint);">
+        Price
+      </div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.8rem; color: var(--shop-purple); margin-top:2px;">
+        ₦{{ product.price }}
+      </div>
+      <div style="font-size:0.82rem; color: var(--shop-ink-faint);">per {{ product.unit }}</div>
+    </div>
+
+    {% if in_cart_qty %}
+      <div class="shop-pill" style="background: var(--shop-green-soft); color: #065f46;">
+        <i class="fa-solid fa-check"></i> {{ in_cart_qty }} in cart
+      </div>
+    {% endif %}
+  </div>
+
+  {% if can_order %}
+    <form method="post" action="{% url 'shop:cart_add' product.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% url 'shop:product_detail' product.slug %}" />
+
+      <label class="shop-label">Quantity</label>
+      <div class="shop-qty" style="margin-bottom: 16px;">
+        <button type="button" class="shop-qty-btn" onclick="decrementQty(this)">−</button>
+        <input type="number" name="quantity" class="shop-qty-input" value="1" min="1" step="1" />
+        <button type="button" class="shop-qty-btn" onclick="incrementQty(this)">+</button>
+      </div>
+
+      <button type="submit" class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg">
+        <i class="fa-solid fa-cart-plus"></i> Add to order
+      </button>
+    </form>
+  {% else %}
+    <button class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg" disabled>
+      <i class="fa-solid fa-lock"></i> Ordering is closed
+    </button>
+    <p style="font-size: 0.82rem; color: var(--shop-ink-faint); text-align:center; margin-top:10px;">
+      Cutoff has passed. Ordering reopens tomorrow morning.
+    </p>
+  {% endif %}
+
+</div>
+
+<!-- RELATED PRODUCTS -->
+{% if related %}
+<div style="margin-top: 28px;">
+  <h3 style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.05rem; margin-bottom: 12px;">
+    More from {{ bakery.name }}
+  </h3>
+
+  <div class="shop-grid">
+    {% for r in related %}
+    <a href="{% url 'shop:product_detail' r.slug %}" class="shop-product" style="text-decoration:none;">
+      <div class="shop-product-image">
+        {% if r.image %}
+          <img src="{{ r.image.url }}" alt="{{ r.name }}" />
+        {% else %}
+          <div class="shop-product-icon"><i class="fa-solid fa-bread-slice"></i></div>
+        {% endif %}
+      </div>
+      <div class="shop-product-name">{{ r.name }}</div>
+      <div class="shop-product-price">
+        ₦{{ r.price }}<small>per {{ r.unit }}</small>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<script>
+function incrementQty(btn) {
+  const input = btn.parentElement.querySelector('input');
+  input.value = (parseInt(input.value) || 0) + 1;
+}
+function decrementQty(btn) {
+  const input = btn.parentElement.querySelector('input');
+  const v = (parseInt(input.value) || 1) - 1;
+  input.value = v < 1 ? 1 : v;
+}
+</script>
+
+{% endblock %}

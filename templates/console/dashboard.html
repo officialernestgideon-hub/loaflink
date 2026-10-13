@@ -57,6 +57,28 @@
     <div class="pf-stat-label">Notifications · 24h</div>
   </div>
 
+    <div class="pf-stat">
+    <div class="pf-stat-icon blue"><i class="fa-solid fa-eye"></i></div>
+    <div class="pf-stat-value">{{ pageviews_today }}</div>
+    <div class="pf-stat-label">Page views today</div>
+    {% if pageviews_yesterday %}
+      <div class="pf-stat-note">
+        {% if pageviews_today >= pageviews_yesterday %}
+          <i class="fa-solid fa-arrow-up" style="color:#10b981;"></i> vs {{ pageviews_yesterday }} yesterday
+        {% else %}
+          <i class="fa-solid fa-arrow-down" style="color:#ef4444;"></i> vs {{ pageviews_yesterday }} yesterday
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon green"><i class="fa-solid fa-user-group"></i></div>
+    <div class="pf-stat-value">{{ unique_today }}</div>
+    <div class="pf-stat-label">Unique visitors today</div>
+    <div class="pf-stat-note">{{ unique_week }} this week</div>
+  </div>
+
 </div>
 
 <!-- ============ CHARTS ROW 1 ============ -->
@@ -102,6 +124,16 @@
       <canvas id="signupsChart" height="180"></canvas>
     </div>
   </div>
+
+  <div class="pf-card">
+  <div class="pf-card-head">
+    <div class="pf-card-title">Visitors · last 14 days</div>
+    <a href="{% url 'console:visitors' %}" class="pf-link">Full analytics →</a>
+  </div>
+  <div class="pf-chart-wrap">
+    <canvas id="visitorsChart"></canvas>
+  </div>
+</div>
 
 </div>
 
@@ -314,6 +346,89 @@ lineChart('gmvChart', gmvData, 'value', green, 'rgba(16, 185, 129, 0.15)', '₦'
             font: { family: 'Inter', size: 11 },
             color: '#6b6a82',
           },
+        },
+      },
+    },
+  });
+})();
+</script>
+
+<script>
+(function() {
+  const data = {{ chart|safe }};
+  const ctx = document.getElementById('visitorsChart').getContext('2d');
+
+  const grad1 = ctx.createLinearGradient(0, 0, 0, 220);
+  grad1.addColorStop(0, 'rgba(124, 58, 237, 0.20)');
+  grad1.addColorStop(1, 'rgba(124, 58, 237, 0)');
+
+  const grad2 = ctx.createLinearGradient(0, 0, 0, 220);
+  grad2.addColorStop(0, 'rgba(16, 185, 129, 0.20)');
+  grad2.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.label),
+      datasets: [
+        {
+          label: 'Page views',
+          data: data.map(d => d.pageviews),
+          borderColor: '#7c3aed',
+          backgroundColor: grad1,
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#7c3aed',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+        },
+        {
+          label: 'Unique visitors',
+          data: data.map(d => d.visitors),
+          borderColor: '#10b981',
+          backgroundColor: grad2,
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#10b981',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          align: 'end',
+          labels: {
+            boxWidth: 10, boxHeight: 10,
+            usePointStyle: true,
+            font: { family: 'Inter', size: 11 },
+            color: '#6b6a82',
+          },
+        },
+        tooltip: {
+          backgroundColor: '#0f0a1e',
+          padding: 10,
+          cornerRadius: 8,
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#a1a1aa', font: { family: 'Inter', size: 11 }, maxRotation: 0 },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { color: '#a1a1aa', font: { family: 'Inter', size: 11 }, precision: 0 },
         },
       },
     },

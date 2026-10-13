@@ -30,6 +30,9 @@
     <a href="{% url 'console:dashboard' %}" class="pf-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
       <i class="fa-solid fa-chart-line"></i> Dashboard
     </a>
+        <a href="{% url 'console:visitors' %}" class="pf-nav-link {% if request.resolver_match.url_name == 'visitors' %}active{% endif %}">
+      <i class="fa-solid fa-eye"></i> Visitors
+    </a>
 
     <div class="pf-sidebar-section">Entities</div>
     <a href="{% url 'console:bakeries' %}" class="pf-nav-link {% if request.resolver_match.url_name == 'bakeries' %}active{% endif %}">

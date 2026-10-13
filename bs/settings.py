@@ -50,7 +50,9 @@ INSTALLED_APPS = [
     'shop',
     'bakery',
     'notifications',
+    'payments',
     'console',
+    'analytics',
 ]
 
 MIDDLEWARE = [
@@ -64,6 +66,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    'analytics.middleware.VisitTrackingMiddleware'
 ]
 
 ROOT_URLCONF = 'bs.urls'
@@ -140,6 +144,7 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # WhiteNoise storage
 STORAGES = {

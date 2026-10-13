@@ -4,6 +4,7 @@ from . import views
 app_name = 'console'
 
 urlpatterns = [
+    path('visitors/', views.visitors, name='visitors'),
     path('', views.dashboard, name='dashboard'),
     path('bakeries/', views.bakeries, name='bakeries'),
     path('retailers/', views.retailers, name='retailers'),

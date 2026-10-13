@@ -7,6 +7,8 @@ from datetime import timedelta, datetime
 from accounts.decorators import role_required
 from orders.models import Bakery, Retailer, Product, Order, OrderItem
 from .forms import ProductForm, BakerySettingsForm, BakerySetupForm
+from decimal import Decimal, InvalidOperation
+from payments.services import get_wallet, credit_wallet
 
 
 # ============================================================
@@ -265,7 +267,7 @@ def product_new(request):
     if not bakery:
         return redirect('bakery:setup')
 
-    form = ProductForm(request.POST or None)
+    form = ProductForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
         product = form.save(commit=False)
         product.bakery = bakery
@@ -288,7 +290,7 @@ def product_edit(request, slug):
 
     product = get_object_or_404(Product, bakery=bakery, slug=slug)
 
-    form = ProductForm(request.POST or None, instance=product)
+    form = ProductForm(request.POST or None, request.FILES or None, instance=product)
     if request.method == 'POST' and form.is_valid():
         form.save()
         messages.success(request, f"'{product.name}' updated.")
@@ -346,11 +348,15 @@ def retailer_detail(request, slug):
 
     retailer = get_object_or_404(Retailer, bakery=bakery, slug=slug)
     recent_orders = retailer.orders.order_by('-delivery_date')[:10]
+    wallet = get_wallet(retailer)
+    transactions = wallet.transactions.select_related('created_by')[:20]
 
     return render(request, 'bakery/retailer_detail.html', {
         'bakery': bakery,
         'retailer': retailer,
         'recent_orders': recent_orders,
+        'wallet': wallet,
+        'transactions': transactions,
     })
 
 
@@ -381,6 +387,69 @@ def retailer_toggle(request, slug):
 
     messages.success(request, f"'{retailer.name}' is now {state}.")
     return redirect('bakery:retailers_list')
+
+# ============================================================
+# WALLET TOP-UP
+# ============================================================
+@role_required('bakery')
+def retailer_topup(request, slug):
+    """Record a payment received from a retailer and credit their wallet."""
+    if request.method != 'POST':
+        return redirect('bakery:retailer_detail', slug=slug)
+
+    bakery = get_bakery(request.user)
+    if not bakery:
+        return redirect('bakery:setup')
+
+    retailer = get_object_or_404(Retailer, bakery=bakery, slug=slug)
+
+    amount_raw = request.POST.get('amount', '').strip()
+    method = request.POST.get('method', 'Cash').strip()[:30]
+    notes = request.POST.get('reason', '').strip()[:200]
+
+    try:
+        amount = Decimal(amount_raw)
+        if amount <= 0:
+            raise InvalidOperation
+    except (InvalidOperation, ValueError):
+        messages.error(request, 'Enter a valid amount greater than zero.')
+        return redirect('bakery:retailer_detail', slug=slug)
+
+    # Build a clean reason string
+    reason_parts = [f'{method} payment']
+    if notes:
+        reason_parts.append(notes)
+    reason = ' — '.join(reason_parts)
+
+    credit_wallet(
+        retailer=retailer,
+        amount=amount,
+        reason=reason,
+        reference=f'payment-{retailer.id}',
+        created_by=request.user,
+    )
+
+    # Notify the retailer
+    try:
+        from notifications.services import send_sms
+        message = (
+            f'₦{amount} received for your LoafLink wallet\n\n'
+            f'Paid via: {method}\n'
+            f'New balance: ₦{retailer.wallet.balance}\n'
+            f'By: {bakery.name}\n\n'
+            f'LoafLink'
+        )
+        send_sms(retailer.user.phone, message, related_user=retailer.user)
+    except Exception as e:
+        # Don't block the wallet credit if SMS fails
+        print(f'[notification error] {e}')
+
+    messages.success(
+        request,
+        f'₦{amount} payment recorded for {retailer.name}. '
+        f'New balance: ₦{retailer.wallet.balance}.'
+    )
+    return redirect('bakery:retailer_detail', slug=slug)
 
 
 # ============================================================
@@ -441,3 +510,14 @@ def settings_view(request):
         'bakery': bakery,
         'form': form,
     })
+
+# ============================================================
+# MOBILE NAV
+# ============================================================
+@role_required('bakery')
+def more_menu(request):
+    """Mobile menu — shows everything not in the bottom nav."""
+    bakery = get_bakery(request.user)
+    if not bakery:
+        return redirect('bakery:setup')
+    return render(request, 'bakery/more.html', {'bakery': bakery})

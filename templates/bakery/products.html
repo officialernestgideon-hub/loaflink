@@ -17,6 +17,7 @@
     <table class="bk-table">
       <thead>
         <tr>
+          <th>image</th>
           <th>Product</th>
           <th>Price</th>
           <th>Unit</th>
@@ -28,8 +29,17 @@
         {% for p in products %}
         <tr>
           <td>
+            {% if p.image %}
+              <img src="{{ p.image.url }}" alt="{{ p.name }}" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;" />
+            {% else %}
+              <div style="width: 48px; height: 48px; border-radius: 8px; background: var(--bk-purple-soft); display: grid; place-items: center; color: var(--bk-purple-dark);">
+                <i class="fa-solid fa-bread-slice"></i>
+              </div>
+            {% endif %}
+          </td>
+          <td>
             <div class="bk-strong">{{ p.name }}</div>
-            {% if p.description %}<div class="bk-muted">{{ p.description }}</div>{% endif %}
+            {% if p.description %}<div class="bk-muted">{{ p.description|truncatewords:10 }}</div>{% endif %}
             <div class="bk-muted" style="font-size:0.72rem;">slug: {{ p.slug }}</div>
           </td>
           <td class="bk-strong">₦{{ p.price }}</td>
@@ -70,5 +80,8 @@
   </div>
 </div>
 {% endif %}
+<a href="{% url 'bakery:product_new' %}" class="bk-fab" aria-label="Add product">
+  <i class="fa-solid fa-plus"></i>
+</a>
 
 {% endblock %}

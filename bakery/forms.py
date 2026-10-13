@@ -56,7 +56,7 @@ class BakerySetupForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'unit', 'is_available']
+        fields = ['name', 'description', 'price', 'unit', 'image', 'is_available']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'bk-input',
@@ -75,10 +75,25 @@ class ProductForm(forms.ModelForm):
             }),
             'unit': forms.Select(attrs={'class': 'bk-input'}),
             'is_available': forms.CheckboxInput(attrs={'class': 'bk-checkbox'}),
+            
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'bk-input',
+                'accept': 'image/*',
+            }),
         }
         labels = {
+            'image': 'Product photo',
             'is_available': 'Available for ordering',
         }
+        help_texts = {
+            'image': 'Optional. JPG, PNG, or WebP. Max 5MB. Shown to retailers.',
+        }
+        
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image and image.size > 5 * 1024 * 1024:
+            raise forms.ValidationError('Image must be smaller than 5MB.')
+        return image
 
 
 class BakerySettingsForm(forms.ModelForm):

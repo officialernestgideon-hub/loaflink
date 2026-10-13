@@ -106,13 +106,17 @@
       <i class="fa-solid fa-receipt"></i>
       <span>Orders</span>
     </a>
-    <a href="{% url 'bakery:retailers_list' %}" class="{% if 'retailer' in request.resolver_match.url_name %}active{% endif %}">
+    {% comment %} <a href="{% url 'bakery:retailers_list' %}" class="{% if 'retailer' in request.resolver_match.url_name %}active{% endif %}">
       <i class="fa-solid fa-store"></i>
       <span>Shops</span>
-    </a>
+    </a> {% endcomment %}
     <a href="{% url 'bakery:settings_view' %}" class="{% if request.resolver_match.url_name == 'settings_view' %}active{% endif %}">
       <i class="fa-solid fa-gear"></i>
       <span>Settings</span>
+    </a>
+    <a href="{% url 'bakery:more' %}" class="{% if request.resolver_match.url_name == 'more' %}active{% endif %}">
+      <i class="fa-solid fa-bars"></i>
+      <span>More</span>
     </a>
   </div>
 </nav>

@@ -1,0 +1,209 @@
+{% extends 'console/base_console.html' %}
+{% block title %}Visitors — LoafLink Console{% endblock %}
+{% block page_title %}Visitor Analytics{% endblock %}
+{% block page_sub %}Last 30 days{% endblock %}
+
+{% block content %}
+
+<!-- ============ STAT TILES ============ -->
+<div class="pf-stats">
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon purple"><i class="fa-solid fa-eye"></i></div>
+    <div class="pf-stat-value">{{ pageviews_today }}</div>
+    <div class="pf-stat-label">Page views today</div>
+  </div>
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon green"><i class="fa-solid fa-user-group"></i></div>
+    <div class="pf-stat-value">{{ unique_today }}</div>
+    <div class="pf-stat-label">Unique visitors today</div>
+  </div>
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon amber"><i class="fa-solid fa-calendar-week"></i></div>
+    <div class="pf-stat-value">{{ pageviews_week }}</div>
+    <div class="pf-stat-label">Page views · 7 days</div>
+    <div class="pf-stat-note">{{ unique_week }} unique</div>
+  </div>
+
+  <div class="pf-stat">
+    <div class="pf-stat-icon blue"><i class="fa-solid fa-chart-line"></i></div>
+    <div class="pf-stat-value">{{ pageviews_month }}</div>
+    <div class="pf-stat-label">Page views · 30 days</div>
+    <div class="pf-stat-note">{{ unique_month }} unique</div>
+  </div>
+
+</div>
+
+<!-- ============ CHART ============ -->
+<div class="pf-card">
+  <div class="pf-card-head">
+    <div class="pf-card-title">Traffic · last 30 days</div>
+  </div>
+  <div class="pf-chart-wrap" style="height: 260px;">
+    <canvas id="visitorsChart"></canvas>
+  </div>
+</div>
+
+<!-- ============ TOP PAGES + REFERRERS ============ -->
+<div class="pf-grid-2">
+
+  <div class="pf-card">
+    <div class="pf-card-head">
+      <div class="pf-card-title">Top pages · last 7 days</div>
+    </div>
+    {% if top_pages %}
+      {% for p in top_pages %}
+      <div class="pf-row">
+        <div>
+          <div class="pf-row-strong">{{ p.path }}</div>
+        </div>
+        <div>
+          <span class="pf-pill neutral">{{ p.views }} views</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="pf-empty">No traffic yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="pf-card">
+    <div class="pf-card-head">
+      <div class="pf-card-title">Referrers · last 7 days</div>
+    </div>
+    {% if top_referers %}
+      {% for r in top_referers %}
+      <div class="pf-row">
+        <div>
+          <div class="pf-row-strong" style="word-break: break-all; font-size: 0.82rem;">
+            {{ r.referer|truncatechars:50 }}
+          </div>
+        </div>
+        <div>
+          <span class="pf-pill neutral">{{ r.views }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="pf-empty">No external referrers yet.</div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ============ RECENT VISITORS ============ -->
+<div class="pf-card">
+  <div class="pf-card-head">
+    <div class="pf-card-title">Recent visitors</div>
+  </div>
+  {% if recent %}
+    {% for v in recent %}
+    <div class="pf-row">
+      <div>
+        <div class="pf-row-strong">
+          {{ v.path }}
+          {% if v.user %}
+            <span class="pf-pill success" style="margin-left: 8px;">
+              {{ v.user.full_name|default:v.user.phone }}
+            </span>
+          {% endif %}
+        </div>
+        <div class="pf-row-meta">
+          {{ v.created_at|date:"d M, g:i A" }}
+          {% if v.ip_hash %} · #{{ v.ip_hash|slice:":8" }}{% endif %}
+        </div>
+      </div>
+      <div>
+        <span class="pf-pill neutral">{{ v.user_agent|truncatechars:30 }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="pf-empty">No visitors yet.</div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  const data = {{ chart|safe }};
+  const ctx = document.getElementById('visitorsChart').getContext('2d');
+
+  const grad1 = ctx.createLinearGradient(0, 0, 0, 260);
+  grad1.addColorStop(0, 'rgba(124, 58, 237, 0.20)');
+  grad1.addColorStop(1, 'rgba(124, 58, 237, 0)');
+
+  const grad2 = ctx.createLinearGradient(0, 0, 0, 260);
+  grad2.addColorStop(0, 'rgba(16, 185, 129, 0.20)');
+  grad2.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.label),
+      datasets: [
+        {
+          label: 'Page views',
+          data: data.map(d => d.pageviews),
+          borderColor: '#7c3aed',
+          backgroundColor: grad1,
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#7c3aed',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+        },
+        {
+          label: 'Unique visitors',
+          data: data.map(d => d.visitors),
+          borderColor: '#10b981',
+          backgroundColor: grad2,
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#10b981',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          align: 'end',
+          labels: {
+            boxWidth: 10, boxHeight: 10,
+            usePointStyle: true,
+            font: { family: 'Inter', size: 11 },
+            color: '#6b6a82',
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#a1a1aa', font: { family: 'Inter', size: 11 }, maxRotation: 0 },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { color: '#a1a1aa', font: { family: 'Inter', size: 11 }, precision: 0 },
+        },
+      },
+    },
+  });
+})();
+</script>
+{% endblock %}
