@@ -8,37 +8,45 @@
   <p>Delivering to <strong>{{ retailer.name }}</strong> on <strong>{{ delivery_date|date:"D, d M" }}</strong></p>
 </div>
 
-<div class="shop-card">
-  <h3 style="font-size:1rem; margin-bottom:14px;">Order summary</h3>
-  {% for line in cart_lines %}
-  <div class="shop-cart-line">
-    <div>
-      <div class="shop-cart-line-name">{{ line.product.name }}</div>
-      <div class="shop-cart-line-meta">{{ line.quantity }} × ₦{{ line.unit_price }}</div>
-    </div>
-    <div class="shop-cart-line-total">₦{{ line.subtotal }}</div>
-  </div>
-  {% endfor %}
-
-  <div class="shop-cart-total-row" style="margin-top:14px;">
-    <span>Total loaves</span>
-    <span>{{ cart_count }}</span>
-  </div>
-  <div class="shop-cart-total-row grand">
-    <span>Total</span>
-    <span>₦{{ cart_total }}</span>
-  </div>
-</div>
-
+<!-- 
+  IMPORTANT: The form starts here and closes right before the back button. 
+  Do not put the button outside the form tag.
+-->
 <form method="post">
   {% csrf_token %}
 
+  <!-- ORDER SUMMARY -->
+  <div class="shop-card">
+    <h3 style="font-size:1rem; margin-bottom:14px;">Order summary</h3>
+    
+    {% for line in cart_lines %}
+    <div class="shop-cart-line">
+      <div>
+        <div class="shop-cart-line-name">{{ line.product.name }}</div>
+        <div class="shop-cart-line-meta">{{ line.quantity }} × ₦{{ line.unit_price }}</div>
+      </div>
+      <div class="shop-cart-line-total">₦{{ line.subtotal }}</div>
+    </div>
+    {% endfor %}
+
+    <div class="shop-cart-total-row" style="margin-top:14px;">
+      <span>Total loaves</span>
+      <span>{{ cart_count }}</span>
+    </div>
+    <div class="shop-cart-total-row grand">
+      <span>Total</span>
+      <span>₦{{ cart_total }}</span>
+    </div>
+  </div>
+
+  <!-- NOTES -->
   <div class="shop-card">
     <label for="notes" class="shop-label">Notes for the bakery (optional)</label>
     <textarea name="notes" id="notes" class="shop-textarea" maxlength="300"
       placeholder="e.g. Please deliver before 7am, or leave with security."></textarea>
   </div>
 
+  <!-- CUTOFF WARNING -->
   <div class="shop-cutoff open" style="margin-bottom: 16px;">
     <div class="shop-cutoff-icon"><i class="fa-solid fa-clock"></i></div>
     <div class="shop-cutoff-text">
@@ -47,58 +55,50 @@
     </div>
   </div>
 
-</form>
-
-  <!-- WALLET SUMMARY -->
-  <div class="shop-card" style="background: {% if has_enough %}#f3e8ff{% else %}#fee2e2{% endif %}; border-color: {% if has_enough %}#d8b4fe{% else %}#fca5a5{% endif %};">
+  <!-- CREDIT LEDGER SUMMARY -->
+  <div class="shop-card" style="background: #f3e8ff; border-color: #d8b4fe;">
     <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
       <div>
         <div style="font-size:0.78rem; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
-          text-transform:uppercase; letter-spacing:0.05em;
-          color: {% if has_enough %}#5b2e91{% else %}#991b1b{% endif %};">
-          Wallet balance
+          text-transform:uppercase; letter-spacing:0.05em; color: #5b2e91;">
+          Current Balance
         </div>
-        <div style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.6rem; margin-top:4px;
-          color: {% if has_enough %}#5b2e91{% else %}#991b1b{% endif %};">
-          ₦{{ wallet.balance }}
+        <div style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.6rem; margin-top:4px; color: #5b2e91;">
+          {% if wallet.balance < 0 %}
+            -₦{{ wallet.balance|stringformat:"s"|slice:"1:" }}
+          {% else %}
+            ₦{{ wallet.balance }}
+          {% endif %}
         </div>
       </div>
       <div style="text-align:right;">
         <div style="font-size:0.78rem; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
-          text-transform:uppercase; letter-spacing:0.05em;
-          color: {% if has_enough %}#5b2e91{% else %}#991b1b{% endif %};">
-          Order total
+          text-transform:uppercase; letter-spacing:0.05em; color: #5b2e91;">
+          This Order
         </div>
-        <div style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.6rem; margin-top:4px;
-          color: {% if has_enough %}#5b2e91{% else %}#991b1b{% endif %};">
+        <div style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.6rem; margin-top:4px; color: #5b2e91;">
           ₦{{ cart_total }}
         </div>
       </div>
     </div>
 
-    {% if has_enough %}
-    <div style="margin-top:14px; font-size:0.88rem; color:#5b2e91;">
-      <i class="fa-solid fa-check-circle"></i> You have enough balance to place this order.
+    <div style="margin-top:14px; font-size:0.88rem; color:#5b2e91; display:flex; gap:8px; align-items:flex-start;">
+      <i class="fa-solid fa-circle-info" style="margin-top:2px;"></i>
+      <span>
+        {% if wallet.has_enough_for.cart_total %}
+          This amount will be deducted from your wallet balance.
+        {% else %}
+          Your balance is low, but you can still place this order. It will be added to your tab and paid to the bakery later.
+        {% endif %}
+      </span>
     </div>
-    {% else %}
-    <div style="margin-top:14px; font-size:0.88rem; color:#991b1b;">
-      <i class="fa-solid fa-triangle-exclamation"></i>
-      Insufficient balance. You need ₦{{ cart_total|add:0 }} but only have ₦{{ wallet.balance }}.
-    </div>
-    {% endif %}
   </div>
 
-  {% if has_enough %}
-    <button type="submit" class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg">
-      <i class="fa-solid fa-check"></i> Place order · ₦{{ cart_total }}
-    </button>
-  {% else %}
-    <a href="{% url 'payments:wallet' %}" class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg">
-      <i class="fa-solid fa-wallet"></i> Top up wallet
-    </a>
-    <button type="submit" class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg">
+  <!-- SUBMIT BUTTON (Inside the form) -->
+  <button type="submit" class="shop-btn shop-btn-primary shop-btn-block shop-btn-lg">
     <i class="fa-solid fa-check"></i> Place order · ₦{{ cart_total }}
   </button>
-  {% endif %}
+
+</form>
 
 {% endblock %}

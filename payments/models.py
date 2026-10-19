@@ -59,11 +59,8 @@ class Wallet(models.Model):
         if amount <= 0:
             raise ValueError('Debit amount must be positive.')
 
-        if self.balance < amount:
-            raise ValueError(
-                f'Insufficient balance. Wallet has ₦{self.balance}, '
-                f'but ₦{amount} is required.'
-            )
+        # We no longer block negative balances. 
+        # If they don't have money, they go into debt.
 
         self.balance = self.balance - amount
         self.save(update_fields=['balance', 'updated_at'])

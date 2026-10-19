@@ -8,16 +8,16 @@
   <p>Your balance with {{ retailer.bakery.name }}. Every order is automatically deducted.</p>
 </div>
 
-<!-- BALANCE CARD -->
-<div class="shop-card" style="background: linear-gradient(135deg, #7c3aed, #ec4899); border: none; color: white;">
+<div class="shop-card" style="background: {% if wallet.balance < 0 %}linear-gradient(135deg, #ef4444, #f97316){% else %}linear-gradient(135deg, #7c3aed, #ec4899){% endif %}; border: none; color: white;">
   <div style="font-size: 0.85rem; opacity: 0.85; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">
-    Available balance
+    {% if wallet.balance < 0 %}Balance owed to bakery{% else %}Available balance{% endif %}
   </div>
   <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 2.6rem; line-height: 1.1; margin: 8px 0;">
-    ₦{{ wallet.balance }}
-  </div>
-  <div style="font-size: 0.85rem; opacity: 0.85;">
-    Last updated {{ wallet.updated_at|date:"d M Y, g:i A" }}
+    {% if wallet.balance < 0 %}
+      -₦{{ wallet.balance|stringformat:"s"|slice:"1:" }}
+    {% else %}
+      ₦{{ wallet.balance }}
+    {% endif %}
   </div>
 </div>
 

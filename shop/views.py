@@ -8,6 +8,7 @@ from accounts.decorators import role_required
 from orders.models import Product, Retailer, Order, OrderItem, Bakery
 from .cart import Cart
 from .forms import BakerySelectForm
+from payments.services import get_wallet, debit_wallet
 
 
 
@@ -257,19 +258,12 @@ def checkout(request):
         return redirect('shop:orders')
 
         # Balance check happens before we even show the checkout page
-    from payments.services import get_wallet, debit_wallet
+    
     wallet = get_wallet(retailer)
     cart_total = cart.total()
 
     if request.method == 'POST':
-        # Re-check balance right before committing
-        if not wallet.has_enough_for(cart_total):
-            messages.error(
-                request,
-                f"Insufficient balance. Your wallet has ₦{wallet.balance}, "
-                f"but this order costs ₦{cart_total}. Please top up first."
-            )
-            return redirect('payments:wallet')
+        # Removed balance check. Retailers can order on credit
 
         notes = request.POST.get('notes', '').strip()[:300]
 
@@ -317,7 +311,7 @@ def checkout(request):
         'delivery_date': delivery_date,
         'cutoff_dt': cutoff_dt,
         'wallet': wallet,
-        'has_enough': wallet.has_enough_for(cart_total),
+        'has_enough': True,  # Force the button to be enabled
     })
 
 
