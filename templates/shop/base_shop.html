@@ -28,7 +28,7 @@
     <div class="shop-topbar-actions">
       {% if wallet_balance is not None %}
       <a href="{% url 'payments:wallet' %}" class="shop-cart-btn" style="background: {% if wallet_balance < 0 %}#fee2e2{% else %}#f3e8ff{% endif %}; color: {% if wallet_balance < 0 %}#991b1b{% else %}#5b2e91{% endif %};">
-        <i class="fa-solid fa-wallet"></i>
+        {% comment %} <i class="fa-solid fa-wallet"></i> {% endcomment %}
         {% if wallet_balance < 0 %}
           -₦{{ wallet_balance|stringformat:"s"|slice:"1:" }}
         {% else %}
